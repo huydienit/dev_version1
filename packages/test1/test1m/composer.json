@@ -1,0 +1,32 @@
+{
+    "name": "test1/test1m",
+    "description": "test1m",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "electric",
+            "email": "huydien.it@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+
+    },
+    "require-dev": {
+
+    },
+    "autoload": {
+        "psr-4": {
+            "Test1\\Test1m\\": "src"
+        }
+    },
+    "autoload-dev": {
+
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
