@@ -38,5 +38,8 @@ return [
     ],
     "dashboard" => [
         "index" => "Landing Page",
+    ],
+    "file" => [
+        "manage" => "File Manage",
     ]
 ];

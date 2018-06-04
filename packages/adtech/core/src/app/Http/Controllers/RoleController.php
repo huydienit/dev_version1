@@ -2,16 +2,19 @@
 
 namespace Adtech\Core\App\Http\Controllers;
 
+use Adtech\Core\App\Models\User;
 use Illuminate\Http\Request;
 use Adtech\Application\Cms\Controllers\Controller as Controller;
 use Adtech\Core\App\Repositories\RoleRepository;
 use Adtech\Core\App\Http\Requests\RoleRequest;
 use Adtech\Core\App\Models\Role;
 use Yajra\Datatables\Datatables;
+use Spatie\Activitylog\Models\Activity;
 use Validator;
 
 class RoleController extends Controller
 {
+    private $_user = null;
     private $messages = array(
         'name.regex' => "Sai định dạng",
         'required' => "Bắt buộc",
@@ -22,17 +25,24 @@ class RoleController extends Controller
     {
         parent::__construct();
         $this->role = $roleRepository;
+        $this->_user = new User();
     }
 
     public function add(RoleRequest $request)
     {
-        $roles = new Role($request->all());
+        $role = new Role($request->all());
         if ($request->has('permission_locked')) {
-            $roles->permission_locked = 1;
+            $role->permission_locked = 1;
         }
-        $roles->save();
+        $role->save();
 
-        if ($roles->role_id) {
+        if ($role->role_id) {
+
+            activity('role')
+                ->performedOn($role)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Add Role - name: :properties.name, role_id: ' . $role->role_id);
+
             return redirect()->route('adtech.core.role.manage')->with('success', trans('adtech-core::messages.success.create'));
         } else {
             return redirect()->route('adtech.core.role.manage')->with('error', trans('adtech-core::messages.error.create'));
@@ -54,6 +64,12 @@ class RoleController extends Controller
         }
 
         if ($role->delete()) {
+
+            activity('role')
+                ->performedOn($role)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Delete Role - role_id: :properties.role_id, name: ' . $role->name);
+
             return redirect()->route('adtech.core.role.manage')->with('success', trans('adtech-core::messages.success.delete'));
         } else {
             return redirect()->route('adtech.core.role.manage')->with('error', trans('adtech-core::messages.error.delete'));
@@ -90,6 +106,12 @@ class RoleController extends Controller
         $role->permission_locked = ($request->has('permission_locked')) ? 1 : 0;
 
         if ($role->save()) {
+
+            activity('role')
+                ->performedOn($role)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Update Role - role_id: :properties.role_id, name: :properties.name, status: :properties.status');
+
             return redirect()->route('adtech.core.role.manage')->with('success', trans('adtech-core::messages.success.update'));
         } else {
             return redirect()->route('adtech.core.role.show', ['role_id' => $request->input('role_id')])->with('error', trans('adtech-core::messages.error.update'));
@@ -111,6 +133,29 @@ class RoleController extends Controller
 
 //                $error = trans('news/message.error.destroy', compact('id'));
                 return view('includes.modal_confirmation', compact('error', 'model', 'confirm_route'));
+            }
+        } else {
+            return $validator->messages();
+        }
+    }
+
+    public function log(Request $request)
+    {
+        $model = 'role';
+        $confirm_route = $error = null;
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+            'id' => 'required|numeric',
+        ], $this->messages);
+        if (!$validator->fails()) {
+            try {
+                $logs = Activity::where([
+                    ['log_name', $model],
+                    ['subject_id', $request->input('id')]
+                ])->get();
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route', 'logs'));
+            } catch (GroupNotFoundException $e) {
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route'));
             }
         } else {
             return $validator->messages();
@@ -142,7 +187,8 @@ class RoleController extends Controller
                 if ($roles->permission_locked == 1) {
                     $actions = '';
                 } else {
-                    $actions = '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>
+                    $actions = '<a href=' . route('adtech.core.role.log', ['type' => 'role', 'id' => $roles->role_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log Role"></i></a>
+                            <a href=' . route('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>
                             <a href=' . route('adtech.core.role.show', ['role_id' => $roles->role_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update News"></i></a>
                             <a href=' . route('adtech.core.role.confirm-delete', ['role_id' => $roles->role_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete Roles"></i></a>';
                 }

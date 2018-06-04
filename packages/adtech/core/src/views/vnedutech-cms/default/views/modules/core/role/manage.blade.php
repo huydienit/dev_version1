@@ -102,6 +102,12 @@
             <div class="modal-content"></div>
         </div>
     </div>
+    <div class="modal fade" id="log" tabindex="-1" role="dialog" aria-labelledby="user_log_title"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <script>
         $(function () {
             $('body').on('hidden.bs.modal', '.modal', function () {

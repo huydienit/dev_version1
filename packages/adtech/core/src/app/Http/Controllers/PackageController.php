@@ -15,6 +15,7 @@ use Adtech\Core\App\Models\Package;
 use Yajra\Datatables\Datatables;
 use Illuminate\Filesystem\Filesystem;
 use Adtech\Core\App\Models\Domain;
+use Spatie\Activitylog\Models\Activity;
 use Validator;
 
 class PackageController extends Controller
@@ -100,6 +101,11 @@ class PackageController extends Controller
                                                     $domainsPackage->package_id = $packages->package_id;
                                                     $domainsPackage->domain_id = $domain_id;
                                                     $domainsPackage->save();
+
+                                                    activity('package')
+                                                        ->performedOn($domainsPackage)
+                                                        ->withProperties($request->all())
+                                                        ->log('User: :causer.email - Add Package Zip - space: ' . $space . ', package: ' . $vendor . ', module: '. $packageItem);
                                                 }
                                             }
                                         }
@@ -131,6 +137,11 @@ class PackageController extends Controller
                         $domainsPackage->package_id = $packages->package_id;
                         $domainsPackage->domain_id = $domain_id;
                         $domainsPackage->save();
+
+                        activity('package')
+                            ->performedOn($domainsPackage)
+                            ->withProperties($request->all())
+                            ->log('User: :causer.email - Add Package - space: :properties.space, package: :properties.package, module: :properties.module');
 
                         return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.create'));
                     } else {
@@ -222,6 +233,11 @@ class PackageController extends Controller
                         file_put_contents($path, str_replace('\/', '/', json_encode($composerObject)));
                     }
 
+                    activity('package')
+                        ->performedOn($domainsPackage)
+                        ->withProperties($request->all())
+                        ->log('User: :causer.email - Update Status Package - domain_id: :properties.domain_id, package_id: :properties.package_id, status: ' . $domainsPackage->status);
+
                     // Dump autoload.
                     $this->composer->dumpAutoloads();
 
@@ -283,6 +299,11 @@ class PackageController extends Controller
 
                     file_put_contents($path, str_replace('\/', '/', json_encode($composerObject)));
                 }
+
+                activity('package')
+                    ->performedOn($domainsPackage)
+                    ->withProperties($request->all())
+                    ->log('User: :causer.email - Delete Package - domain_id: :properties.domain_id, package_id: :properties.package_id');
 
                 return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.delete'));
             } else {
@@ -479,12 +500,40 @@ class PackageController extends Controller
             $domainsPackage->domain_id = $domain_id;
             $domainsPackage->save();
 
+            activity('package')
+                ->performedOn($domainsPackage)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Add Package Search - domain_id: :properties.domain_id, package_id: :properties.package_id');
+
             $result['type'] = 'success';
             $result['group'] = 'Permission';
             $result['msg'] = 'Add Package Successfull';
         }
 
         return $result;
+    }
+
+    public function log(Request $request)
+    {
+        $model = 'package';
+        $confirm_route = $error = null;
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+            'id' => 'required|numeric',
+        ], $this->messages);
+        if (!$validator->fails()) {
+            try {
+                $logs = Activity::where([
+                    ['log_name', $model],
+                    ['subject_id', $request->input('id')]
+                ])->get();
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route', 'logs'));
+            } catch (GroupNotFoundException $e) {
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route'));
+            }
+        } else {
+            return $validator->messages();
+        }
     }
 
     //Table Data to index page
@@ -620,7 +669,13 @@ class PackageController extends Controller
                 return $methodTbl;
             })
             ->addColumn('actions', function ($packages) use ($domain_id) {
-                $actions = '<a href=' . route('adtech.core.package.download', ['package_id' => $packages->package_id]) . '><i class="livicon" data-name="download" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="download packages"></i></a>';
+                $domainsPackage = $this->domainsPackage->findWhere([
+                    'package_id' => $packages->package_id,
+                    'domain_id' => $domain_id
+                ])->first();
+
+                $actions = '<a href=' . route('adtech.core.package.log', ['type' => 'package', 'id' => $domainsPackage->id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log package"></i></a>
+                        <a href=' . route('adtech.core.package.download', ['package_id' => $packages->package_id]) . '><i class="livicon" data-name="download" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="download packages"></i></a>';
 
                 return $actions;
             })

@@ -2,7 +2,8 @@
 
     <li {!! (Request::is('admin/adtech/core/role/*') || Request::is('admin/adtech/core/user/*') ||
      Request::is('admin/adtech/core/route/list') || Request::is('admin/adtech/core/permission/*') ||
-     Request::is('admin/adtech/core/package/*') || Request::is('admin/adtech/core/domain/*')) ? 'class="active"' : '' !!}>
+     Request::is('admin/adtech/core/package/*') || Request::is('admin/adtech/core/domain/*') ||
+     Request::is('admin/adtech/core/file/*')) ? 'class="active"' : '' !!}>
         <a href="#">
             <i class="livicon" data-name="wrench" data-size="18" data-c="#6CC66C" data-hc="#6CC66C"
                data-loop="true"></i>
@@ -40,20 +41,25 @@
             </li>
             <li {!! (Request::is('admin/adtech/core/package/manage') ? 'class="active"' : '') !!}>
                 <a href="{{ route('adtech.core.package.manage') }}">
-                    <i class="livicon" data-name="folder-flag" data-size="18" data-c="#6CC66C" data-hc="#6CC66C"
+                    <i class="livicon" data-name="piechart" data-size="18" data-c="#6CC66C" data-hc="#6CC66C"
                        data-loop="true"></i>
                     <span class="title">Package</span>
                 </a>
             </li>
-            <?php if (Route::has('demo.page1.index.manage')) : ?>
-            {{--<li {!! (Request::is('admin/demo/page1/index/manage') ? 'class="active"' : '') !!}>--}}
-                {{--<a href="{{ route('demo.page1.index.manage') }}">--}}
-                    {{--<i class="livicon" data-name="globe" data-size="18" data-c="#418BCA" data-hc="#418BCA"--}}
+            <li {!! (Request::is('admin/adtech/core/file/manage') ? 'class="active"' : '') !!}>
+                <a href="{{ route('adtech.core.file.manage') }}">
+                    <i class="livicon" data-name="folder-flag" data-size="18" data-c="#f99928" data-hc="#f99928"
+                       data-loop="true"></i>
+                    <span class="title">File manager</span>
+                </a>
+            </li>
+            {{--<li {!! (Request::is('admin/laravel-filemanager') ? 'class="active"' : '') !!}>--}}
+                {{--<a href="{{ route('adtech.core.file.manage') }}">--}}
+                    {{--<i class="livicon" data-name="folder-flag" data-size="18" data-c="#6CC66C" data-hc="#6CC66C"--}}
                        {{--data-loop="true"></i>--}}
-                    {{--<span class="title">Domain</span>--}}
+                    {{--<span class="title">File manager</span>--}}
                 {{--</a>--}}
             {{--</li>--}}
-            <?php endif; ?>
         </ul>
     </li>
 

@@ -18,8 +18,8 @@ class DashboardController extends Controller
             compact('analytics_error', 'users', 'blogs', 'pageVisits', 'blog_count', 'visitors', 'user_count', 'month_visits', 'year_visits'));
     }
 
-    public function home()
+    public function filemanage()
     {
-        return view('modules.core.dashboard.home');
+        return view('ADTECH-CORE::modules.core.file.manage');
     }
 }

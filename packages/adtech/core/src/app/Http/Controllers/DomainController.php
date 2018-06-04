@@ -9,6 +9,7 @@ use Adtech\Core\App\Http\Requests\DomainRequest;
 use Adtech\Core\App\Models\Domain;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Collection;
+use Spatie\Activitylog\Models\Activity;
 use Validator;
 
 class DomainController extends Controller
@@ -27,10 +28,16 @@ class DomainController extends Controller
 
     public function add(DomainRequest $request)
     {
-        $domains = new Domain($request->all());
-        $domains->save();
+        $domain = new Domain($request->all());
+        $domain->save();
 
-        if ($domains->domain_id) {
+        if ($domain->domain_id) {
+
+            activity('domain')
+                ->performedOn($domain)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Add Domain - name: :properties.name, domain_id: ' . $domain->domain_id);
+
             return redirect()->route('adtech.core.domain.manage')->with('success', trans('adtech-core::messages.success.create'));
         } else {
             return redirect()->route('adtech.core.domain.manage')->with('error', trans('adtech-core::messages.error.create'));
@@ -48,6 +55,12 @@ class DomainController extends Controller
         $domain = $this->domain->find($domain_id);
 
         if ($domain->delete()) {
+
+            activity('domain')
+                ->performedOn($domain)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Delete Domain - domain_id: :properties.domain_id, name: ' . $domain->name);
+
             return redirect()->route('adtech.core.domain.manage')->with('success', trans('adtech-core::messages.success.delete'));
         } else {
             return redirect()->route('adtech.core.domain.manage')->with('error', trans('adtech-core::messages.error.delete'));
@@ -78,6 +91,12 @@ class DomainController extends Controller
         $domain->name = $request->input('name');
 
         if ($domain->save()) {
+
+            activity('domain')
+                ->performedOn($domain)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Update Domain - domain_id: :properties.domain_id, name: :properties.name');
+
             return redirect()->route('adtech.core.domain.manage')->with('success', trans('adtech-core::messages.success.update'));
         } else {
             return redirect()->route('adtech.core.domain.show', ['domain_id' => $request->input('domain_id')])->with('error', trans('adtech-core::messages.error.update'));
@@ -97,6 +116,29 @@ class DomainController extends Controller
                 return view('includes.modal_confirmation', compact('error', 'model', 'confirm_route'));
             } catch (GroupNotFoundException $e) {
                 return view('includes.modal_confirmation', compact('error', 'model', 'confirm_route'));
+            }
+        } else {
+            return $validator->messages();
+        }
+    }
+
+    public function log(Request $request)
+    {
+        $model = 'domain';
+        $confirm_route = $error = null;
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+            'id' => 'required|numeric',
+        ], $this->messages);
+        if (!$validator->fails()) {
+            try {
+                $logs = Activity::where([
+                    ['log_name', $model],
+                    ['subject_id', $request->input('id')]
+                ])->get();
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route', 'logs'));
+            } catch (GroupNotFoundException $e) {
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route'));
             }
         } else {
             return $validator->messages();
@@ -128,7 +170,8 @@ class DomainController extends Controller
                 return $actions = '<a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '>' . $domains->name . '</a>';
             })
             ->addColumn('actions', function ($domains) {
-                $actions = '<a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="package manage"></i></a>
+                $actions = '<a href=' . route('adtech.core.domain.log', ['type' => 'domain', 'id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log domains"></i></a>
+                        <a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="package manage"></i></a>
                         <a href=' . route('adtech.core.domain.show', ['domain_id' => $domains->domain_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update domain"></i></a>
                         <a href=' . route('adtech.core.domain.confirm-delete', ['domain_id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete domains"></i></a>';
 

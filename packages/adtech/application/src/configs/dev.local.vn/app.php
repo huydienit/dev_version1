@@ -177,9 +177,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
+        Unisharp\Laravelfilemanager\LaravelFilemanagerServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
 
-        Silber\Bouncer\BouncerServiceProvider::class
+        Spatie\Activitylog\ActivitylogServiceProvider::class,
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class // Laravel IDE helper
     ],
 
     /*
@@ -229,7 +231,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
-        'Bouncer' => Silber\Bouncer\BouncerFacade::class,
+        'Image' => Intervention\Image\Facades\Image::class
     ],
 
 ];

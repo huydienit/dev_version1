@@ -67,4 +67,10 @@ return [
         "package" => "Package",
         "module" => "Module",
     ],
+    "table" => [
+        "role" => "Role",
+        "user" => "User",
+        "domain" => "Domain",
+        "package" => "Package",
+    ]
 ];

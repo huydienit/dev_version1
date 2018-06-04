@@ -12,6 +12,7 @@ use Adtech\Core\App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Yajra\Datatables\Datatables;
+use Spatie\Activitylog\Models\Activity;
 
 
 class UserController extends Controller
@@ -19,7 +20,7 @@ class UserController extends Controller
     /**
      * @var UserRepository
      */
-    private $userRepository;
+
     private $messages = array(
         'required' => "Bắt buộc",
         'email' => "Email không chính xác",
@@ -68,6 +69,11 @@ class UserController extends Controller
             DB::insert('insert into adtech_core_users_role (user_id, role_id, created_at, updated_at) values (?, ?, ?, ?)',
                 [$user_id, $role_id, date('Y-m-d H:i:s'), date('Y-m-d H:i:s')]);
 
+            activity('user')
+                ->performedOn($user)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Add User - contact_name: :properties.contact_name, user_id: ' . $user->user_id);
+
             return redirect()->route('adtech.core.user.manage')->with('success', trans('adtech-core::messages.success.create'));
         } else {
             return redirect()->route('adtech.core.user.manage')->with('error', trans('adtech-core::messages.error.create'));
@@ -96,6 +102,11 @@ class UserController extends Controller
                 DB::update('update adtech_core_users_role set role_id = ?, updated_at = ? where user_id = ?', [$role_id, date('Y-m-d H:i:s'), $user_id]);
             }
 
+            activity('user')
+                ->performedOn($user)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Update User - user_id: :properties.user_id, contact_name: :properties.contact_name, status: :properties.status');
+
             return redirect()->route('adtech.core.user.manage')->with('success', trans('adtech-core::messages.success.update'));
         } else {
             return redirect()->route('adtech.core.user.show', ['role_id' => $request->input('user_id')])->with('error', trans('adtech-core::messages.error.update'));
@@ -123,6 +134,12 @@ class UserController extends Controller
         }
 
         if ($user->delete()) {
+
+            activity('user')
+                ->performedOn($user)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Delete User - user_id: :properties.user_id, email: ' . $user->email);
+
             return redirect()->route('adtech.core.user.manage')->with('success', trans('adtech-core::messages.success.delete'));
         } else {
             return redirect()->route('adtech.core.user.manage')->with('error', trans('adtech-core::messages.error.delete'));
@@ -144,6 +161,29 @@ class UserController extends Controller
 
 //                $error = trans('news/message.error.destroy', compact('id'));
                 return view('includes.modal_confirmation', compact('error', 'model', 'confirm_route'));
+            }
+        } else {
+            return $validator->messages();
+        }
+    }
+
+    public function log(Request $request)
+    {
+        $model = 'user';
+        $confirm_route = $error = null;
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+            'id' => 'required|numeric',
+        ], $this->messages);
+        if (!$validator->fails()) {
+            try {
+                $logs = Activity::where([
+                    ['log_name', $model],
+                    ['subject_id', $request->input('id')]
+                ])->get();
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route', 'logs'));
+            } catch (GroupNotFoundException $e) {
+                return view('includes.modal_table', compact('error', 'model', 'confirm_route'));
             }
         } else {
             return $validator->messages();
@@ -177,7 +217,8 @@ class UserController extends Controller
                 if ($users->permission_locked == 1) {
                     $actions = '';
                 } else {
-                    $actions = '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>
+                    $actions = '<a href=' . route('adtech.core.user.log', ['type' => 'user', 'id' => $users->user_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log User"></i></a>
+                            <a href=' . route('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>
                             <a href=' . route('adtech.core.user.show', ['user_id' => $users->user_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update User"></i></a>
                             <a href=' . route('adtech.core.user.confirm-delete', ['user_id' => $users->user_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete User"></i></a>';
                 }

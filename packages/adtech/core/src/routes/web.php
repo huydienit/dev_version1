@@ -42,7 +42,11 @@ Route::group(array('prefix' => $adminPrefix), function () {
     Route::group(['middleware' => ['adtech.auth', 'adtech.acl']], function () {
     
         Route::get('', 'DashboardController@index')->name('backend.homepage');
+        Route::get('/adtech/core/file/manage', 'DashboardController@filemanage')->name('adtech.core.file.manage');
+        Route::get('/laravel-filemanager', '\Unisharp\Laravelfilemanager\controllers\LfmController@show')->name('adtech.core.file.manager');
+        Route::post('/laravel-filemanager/upload', '\Unisharp\Laravelfilemanager\controllers\UploadController@upload')->name('adtech.core.file.upload');
 
+        Route::get('adtech/core/role/log', 'RoleController@log')->name('adtech.core.role.log');
         Route::get('adtech/core/role/data', 'RoleController@data')->name('adtech.core.role.data');
         Route::get('adtech/core/role/manage', 'RoleController@manage')->name('adtech.core.role.manage');
         Route::get('adtech/core/role/create', 'RoleController@create')->name('adtech.core.role.create');
@@ -52,6 +56,7 @@ Route::group(array('prefix' => $adminPrefix), function () {
         Route::get('adtech/core/role/delete', 'RoleController@delete')->name('adtech.core.role.delete');
         Route::get('adtech/core/role/confirm-delete', 'RoleController@getModalDelete')->name('adtech.core.role.confirm-delete');
 
+        Route::get('adtech/core/domain/log', 'DomainController@log')->name('adtech.core.domain.log');
         Route::get('adtech/core/domain/data', 'DomainController@data')->name('adtech.core.domain.data');
         Route::get('adtech/core/domain/manage', 'DomainController@manage')->name('adtech.core.domain.manage');
         Route::get('adtech/core/domain/create', 'DomainController@create')->name('adtech.core.domain.create');
@@ -61,6 +66,7 @@ Route::group(array('prefix' => $adminPrefix), function () {
         Route::get('adtech/core/domain/delete', 'DomainController@delete')->name('adtech.core.domain.delete');
         Route::get('adtech/core/domain/confirm-delete', 'DomainController@getModalDelete')->name('adtech.core.domain.confirm-delete');
 
+        Route::get('adtech/core/package/log', 'PackageController@log')->name('adtech.core.package.log');
         Route::get('adtech/core/package/demo', 'PackageController@demo')->name('adtech.core.package.demo');
         Route::get('adtech/core/package/data', 'PackageController@data')->name('adtech.core.package.data');
         Route::get('adtech/core/package/manage', 'PackageController@manage')->name('adtech.core.package.manage');
@@ -77,6 +83,7 @@ Route::group(array('prefix' => $adminPrefix), function () {
         Route::get('adtech/core/package/confirm-delete', 'PackageController@getModalDelete')->name('adtech.core.package.confirm-delete');
         Route::get('adtech/core/package/confirm-status', 'PackageController@getModalStatus')->name('adtech.core.package.confirm-status');
 
+        Route::get('adtech/core/user/log', 'UserController@log')->name('adtech.core.user.log');
         Route::get('adtech/core/user/data', 'UserController@data')->name('adtech.core.user.data');
         Route::get('adtech/core/user/manage', 'UserController@manage')->name('adtech.core.user.manage');
         Route::get('adtech/core/user/create', 'UserController@create')->name('adtech.core.user.create');

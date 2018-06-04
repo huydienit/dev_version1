@@ -176,6 +176,11 @@ class PermissionController extends Controller
             $result['type'] = 'success';
             $result['group'] = 'Permission';
             $result['msg'] = 'Update Permission Successfull';
+
+            activity('permission')
+                ->performedOn($acl)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Update Permission - object_type: ' . $objectType . ', object_id: ' . $objectId . ', allow: ' . $allow . ', route_name: ' . $route_name);
         }
 
         if ($request->has('route_name1')) {
@@ -217,9 +222,14 @@ class PermissionController extends Controller
                     ->get();
                 $data && $cache->forever(self::$_aclKey, $data);
 
-                $result['type'] = 'success';
-                $result['group'] = 'Permission';
-                $result['msg'] = 'Update Permission Successfull';
+                activity('permission')
+                    ->performedOn($acl)
+                    ->withProperties($request->all())
+                    ->log('User: :causer.email - Update Permission - object_type: ' . $objectType . ', object_id: ' . $objectId . ', allow: ' . $allow . ', route_name: ' . $route_name);
+
+//                $result['type'] = 'success';
+//                $result['group'] = 'Permission';
+//                $result['msg'] = 'Update Permission Successfull';
             }
         }
         return $result;
@@ -382,8 +392,9 @@ class PermissionController extends Controller
         $collection = Collection::make($listController);
         return Datatables::of($collection)
             ->editColumn('controller', function ($collection) {
-                $inputName = $collection['package'] . '-' . $collection['module'] . '-' . $collection['controller'];
-                $controller = '<div class="form-group input-group" style="width: 100%">
+                if (Auth::user()->role_id == 1) {
+                    $inputName = $collection['package'] . '-' . $collection['module'] . '-' . $collection['controller'];
+                    $controller = '<div class="form-group input-group" style="width: 100%">
                                 <input type="text" class="form-control" name="' . $inputName . '" value="' . $collection['controller'] . '">
                                 <span class="input-group-btn">
                                     <button class="btn btn-default btnSaveControllerName" type="button" data-name="' . $inputName . '">
@@ -391,6 +402,10 @@ class PermissionController extends Controller
                                     </button>
                                 </span>
                             </div>';
+                } else {
+                    $controller = $collection['controller'];
+                }
+
                 return $controller;
             })
             ->rawColumns(['method', 'controller'])->make(true);
@@ -428,7 +443,7 @@ class PermissionController extends Controller
 
             if (isset($route->action['as'])) {
                 $module = explode('.', $route->action['as']);
-                if (count($module) == 4) {
+                if (count($module) == 4 || $route->action['as'] == 'backend.homepage') {
 //                    if (in_array($module[2], $whitelist)) {
                         $wheres = '';
                         if ($route->wheres) {
