@@ -14,6 +14,10 @@ class DomainRepository extends Repository
         return 'Adtech\Core\App\Models\Domain';
     }
 
+    public function deleteID($id) {
+        return $this->model->where('domain_id', '=', $id)->update(['visible' => 0]);
+    }
+
     public function getById($id, $columns = ['*'])
     {
         return $this->model->where('domain_id', '=', $id)->first($columns);

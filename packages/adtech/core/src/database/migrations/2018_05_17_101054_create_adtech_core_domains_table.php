@@ -16,6 +16,8 @@ class CreateAdtechCoreDomainsTable extends Migration
         Schema::create('adtech_core_domains', function (Blueprint $table) {
             $table->increments('domain_id')->index();
             $table->string('name');
+            $table->tinyInteger('visible', false, true)->default(1);
+
             $table->timestamps();
             $table->engine = 'InnoDB';
         });

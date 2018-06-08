@@ -1,10 +1,12 @@
 @extends('layouts.default')
 
 {{-- Page title --}}
-@section('title'){{ $title = trans('adtech-core::titles.role.create') }}@stop
+@section('title'){{ $title = trans('adtech-core::titles.menu.create') }}@stop
 
 {{-- page styles --}}
 @section('header_styles')
+    <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/select2/css/select2-bootstrap.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/bootstrap-switch/css/bootstrap-switch.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/css/pages/blog.css') }}" rel="stylesheet" type="text/css">
 @stop
@@ -31,25 +33,45 @@
         <div class="row">
             <div class="the-box no-border">
                 <!-- errors -->
-                {!! Form::open(array('url' => route('adtech.core.role.add'), 'method' => 'post', 'class' => 'bf', 'id' => 'roleForm', 'files'=> true)) !!}
+                {!! Form::open(array('url' => route('adtech.core.menu.add', ['domain_id' => $domain_id]), 'method' => 'post', 'class' => 'bf', 'id' => 'menuForm', 'files'=> true)) !!}
                 <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
                 <div class="row">
                     <div class="col-sm-8">
-                        <label>Role Name</label>
+
+                        <label>Parent</label>
+                        <div class="form-group {{ $errors->first('parent', 'has-error') }}">
+                            <select class="form-control select2" title="Select parent..." name="parent"
+                                    id="parent">
+                                <option value="0">Root menu</option>
+                                @foreach($menus as $menu)
+                                    <option value="{{ $menu->menu_id }}">{{ str_repeat('---', $menu->level) . $menu->name}}</option>
+                                @endforeach
+                            </select>
+                            <span class="help-block">{{ $errors->first('parent', ':message') }}</span>
+                        </div>
+
+                        <label>Menu Name</label>
                         <div class="form-group {{ $errors->first('name', 'has-error') }}">
-                            {!! Form::text('name', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus', 'placeholder'=> trans('adtech-core::common.role.name_here'))) !!}
+                            {!! Form::text('name', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus','placeholder'=> trans('adtech-core::common.menu.name_here'))) !!}
                             <span class="help-block">{{ $errors->first('name', ':message') }}</span>
                         </div>
-                        <label>Role Sort</label>
+                        <label>Route Name</label>
+                        <div class="form-group {{ $errors->first('route_name', 'has-error') }}">
+                            <select class="form-control select2" title="Select route name..." name="route_name"
+                                    id="parent">
+                                @foreach($listRouteName as $routeName)
+                                    <option value="{{ $routeName }}">{{ $routeName }}</option>
+                                @endforeach
+                            </select>
+                            <span class="help-block">{{ $errors->first('route_name', ':message') }}</span>
+                        </div>
+                        <label>Sort</label>
                         <div class="form-group {{ $errors->first('sort', 'has-error') }}">
-                            {!! Form::number('sort', null, array('min' => 0, 'max' => 99,'class' => 'form-control input-lg', 'placeholder'=> trans('adtech-core::common.role.sort_here'))) !!}
+                            {!! Form::number('sort', null, array('min' => 0, 'max' => 99,'class' => 'form-control input-lg', 'placeholder'=> trans('adtech-core::common.menu.sort_here'))) !!}
                             <span class="help-block">{{ $errors->first('sort', ':message') }}</span>
                         </div>
                         <div class="form-group">
-                            <label>Permission Lock</label>
-                            <div class="form-group">
-                                {!! Form::checkbox('permission_locked', null, false, array('data-size'=> 'mini')) !!}
-                            </div>
+                            {!! Form::hidden('domain_id', $domain_id) !!}
                         </div>
                     </div>
                     <!-- /.col-sm-8 -->
@@ -58,7 +80,7 @@
                             <label for="blog_category" class="">Actions</label>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-success">{{ trans('adtech-core::buttons.create') }}</button>
-                                <a href="{!! route('adtech.core.role.create') !!}"
+                                <a href="{!! route('adtech.core.menu.create') !!}"
                                    class="btn btn-danger">{{ trans('adtech-core::buttons.discard') }}</a>
                             </div>
                         </div>
@@ -75,12 +97,15 @@
 {{-- page level scripts --}}
 @section('footer_scripts')
     <!-- begining of page js -->
+    <script type="text/javascript" src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/select2/js/select2.js') }}"></script>
     <script src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/bootstrap-switch/js/bootstrap-switch.js') }}" type="text/javascript"></script>
     <script src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/bootstrapvalidator/js/bootstrapValidator.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/js/pages/add_role.js') }}" type="text/javascript"></script>
     <!--end of page js-->
     <script>
         $(function () {
+            $(".select2").select2({
+                theme:"bootstrap"
+            });
             $("[name='permission_locked']").bootstrapSwitch();
         })
     </script>

@@ -17,7 +17,7 @@ class CreateAdtechCoreAclTable extends Migration
             $table->increments('acl_id');
             $table->integer('object_id', false, true);
             $table->enum('object_type', ['role', 'user', 'group']);
-            $table->integer('domain_id', false, true);
+            $table->integer('domain_id', false, true)->default(1);
             $table->integer('allow')->nullable();
             $table->string('route_name')->nullable();
             $table->integer('route_name_crc', false, true)->nullable();

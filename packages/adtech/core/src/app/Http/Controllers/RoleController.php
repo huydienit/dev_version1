@@ -11,6 +11,7 @@ use Adtech\Core\App\Models\Role;
 use Yajra\Datatables\Datatables;
 use Spatie\Activitylog\Models\Activity;
 use Validator;
+use Auth;
 
 class RoleController extends Controller
 {
@@ -25,7 +26,7 @@ class RoleController extends Controller
     {
         parent::__construct();
         $this->role = $roleRepository;
-        $this->_user = new User();
+        $this->_user = Auth::user();
     }
 
     public function add(RoleRequest $request)
@@ -51,7 +52,7 @@ class RoleController extends Controller
 
     public function create()
     {
-        return view('modules.core.role.create');
+        return view('ADTECH-CORE::modules.core.role.create');
     }
 
     public function delete(RoleRequest $request)
@@ -63,8 +64,9 @@ class RoleController extends Controller
             return redirect()->route('adtech.core.role.manage')->with('error', trans('adtech-core::messages.error.permission'));
         }
 
-        if ($role->delete()) {
+        if (null != $role) {
 
+            $this->role->deleteID($role_id);
             activity('role')
                 ->performedOn($role)
                 ->withProperties($request->all())
@@ -93,7 +95,7 @@ class RoleController extends Controller
             return redirect()->route('adtech.core.role.manage')->with('error', trans('adtech-core::messages.error.permission'));
         }
 
-        return view('modules.core.role.edit', $data);
+        return view('ADTECH-CORE::modules.core.role.edit', $data);
     }
 
     public function update(RoleRequest $request)
@@ -102,6 +104,7 @@ class RoleController extends Controller
 
         $role = $this->role->find($role_id);
         $role->name = $request->input('name');
+        $role->sort = $request->input('sort');
         $role->status = ($request->has('status')) ? 1 : 0;
         $role->permission_locked = ($request->has('permission_locked')) ? 1 : 0;
 
@@ -165,7 +168,9 @@ class RoleController extends Controller
     //Table Data to index page
     public function data()
     {
-        $roles = Role::all();
+        $role_id = $this->_user->role_id;
+        $role = $this->role->find($role_id);
+        $roles = Role::where('sort', '>=', $role->sort)->where('visible', 1)->get();
 
         return Datatables::of($roles)
             ->editColumn('status', function ($roles) {
@@ -180,19 +185,28 @@ class RoleController extends Controller
                 if ($roles->permission_locked == 1) {
                     return $roles->name;
                 } else {
-                    return $actions = '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id]) . '>' . $roles->name . '</a>';
+                    if ($this->_user->canAccess('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id])) {
+                        return $actions = '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id]) . '>' . $roles->name . '</a>';
+                    } else {
+                        return $roles->name;
+                    }
                 }
             })
             ->addColumn('actions', function ($roles) {
                 if ($roles->permission_locked == 1) {
                     $actions = '';
                 } else {
-                    $actions = '<a href=' . route('adtech.core.role.log', ['type' => 'role', 'id' => $roles->role_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log Role"></i></a>
-                            <a href=' . route('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>
-                            <a href=' . route('adtech.core.role.show', ['role_id' => $roles->role_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update News"></i></a>
-                            <a href=' . route('adtech.core.role.confirm-delete', ['role_id' => $roles->role_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete Roles"></i></a>';
+                    $actions = '<a href=' . route('adtech.core.role.log', ['type' => 'role', 'id' => $roles->role_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log Role"></i></a>';
+                    if ($this->_user->canAccess('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id])) {
+                        $actions .= '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'role', 'role_id' => $roles->role_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>';
+                    }
+                    if ($this->_user->canAccess('adtech.core.role.show')) {
+                        $actions .= '<a href=' . route('adtech.core.role.show', ['role_id' => $roles->role_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update News"></i></a>';
+                    }
+                    if ($this->_user->canAccess('adtech.core.role.confirm-delete')) {
+                        $actions .= '<a href=' . route('adtech.core.role.confirm-delete', ['role_id' => $roles->role_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete Roles"></i></a>';
+                    }
                 }
-
                 return $actions;
             })
             ->rawColumns(['actions', 'name', 'status'])

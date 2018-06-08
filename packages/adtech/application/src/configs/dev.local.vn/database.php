@@ -41,9 +41,10 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
+//            'host' => '127.0.0.1',
             'host' => 'mysql',
             'port' => '3306',
-            'database' => 'dev_local_vn',
+            'database' => 'dev_local_vn_v1',
             'username' => 'root',
             'password' => '123456',
             ///'unix_socket' => env('DB_SOCKET', ''),

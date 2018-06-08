@@ -4,7 +4,7 @@ namespace Adtech\Core\App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RoleRequest extends FormRequest
+class MenuRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,20 +28,19 @@ class RoleRequest extends FormRequest
             case 'GET':
             case 'DELETE': {
                 return [
-                    'role_id' => 'required'
+                    'menu_id' => 'required'
                 ];
             }
             case 'POST': {
                 return [
                     'name' => 'required',
-                    'sort' => 'required|integer|min:0|max:99'
+                    'route_name' => 'required'
                 ];
             }
             case 'PUT':{
                 return [
-                    'role_id' => 'required',
-                    'name' => 'required',
-                    'sort' => 'required|integer|min:0|max:99'
+                    'menu_id' => 'required',
+                    'name' => 'required'
                 ];
             }
             case 'PATCH':

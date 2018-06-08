@@ -19,6 +19,12 @@ return [
         "update" => "Update Domain",
         "list" => "Domains list",
     ],
+    "menu" => [
+        "manage" => "Manage Menus",
+        "create" => "Create Menu",
+        "update" => "Update Menu",
+        "list" => "Menus list",
+    ],
     "package" => [
         "manage" => "Manage Packages - Module",
         "create" => "Create Packages",

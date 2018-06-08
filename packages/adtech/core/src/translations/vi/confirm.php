@@ -3,6 +3,10 @@
 return [
     "cancel" => "Cancel",
     "confirm" => "Confirm",
+    "menu" => [
+        "title" => "Delete Menu",
+        "body" => "Are you sure to delete this menu? This operation is irreversible."
+    ],
     "role" => [
         "title" => "Delete Role",
         "body" => "Are you sure to delete this role? This operation is irreversible."

@@ -14,6 +14,10 @@ class UserRepository extends Repository
         return 'Adtech\Core\App\Models\User';
     }
 
+    public function deleteID($id) {
+        return $this->model->where('user_id', '=', $id)->update(['visible' => 0]);
+    }
+
     public function auth($email, $password, $columns = array('*'))
     {
         $user = $this->model->where('email', '=', $email)->first($columns);

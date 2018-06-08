@@ -35,8 +35,10 @@
                     {{ $title }}
                 </h4>
                 <div class="pull-right">
-                    <a href="{{ route('adtech.core.user.create') }}" class="btn btn-sm btn-default"><span
+                    @if ($USER_LOGGED->canAccess('adtech.core.user.create'))
+                        <a href="{{ route('adtech.core.user.create') }}" class="btn btn-sm btn-default"><span
                                 class="glyphicon glyphicon-plus"></span> {{ trans('adtech-core::buttons.create') }}</a>
+                    @endif
                 </div>
             </div>
             <br />

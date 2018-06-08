@@ -19,6 +19,7 @@ class AdtechCoreRolesTableSeeder extends Seeder
             'permission_locked' => 1,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
+            'sort' => 1,
             'status' => 1,
         ]);
 
@@ -27,6 +28,7 @@ class AdtechCoreRolesTableSeeder extends Seeder
             'permission_locked' => 0,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
+            'sort' => 2,
             'status' => 1,
         ]);
 
@@ -35,6 +37,7 @@ class AdtechCoreRolesTableSeeder extends Seeder
             'permission_locked' => 0,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
+            'sort' => 3,
             'status' => 1,
         ]);
     }

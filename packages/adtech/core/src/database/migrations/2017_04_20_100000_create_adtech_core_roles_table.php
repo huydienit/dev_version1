@@ -16,8 +16,10 @@ class CreateAdtechCoreRolesTable extends Migration
         Schema::create('adtech_core_roles', function (Blueprint $table) {
             $table->increments('role_id')->index();
             $table->string('name');
-            $table->tinyInteger('permission_locked')->default(0);
-            $table->integer('status')->default(1);
+            $table->tinyInteger('permission_locked', false, true)->default(0);
+            $table->tinyInteger('sort', false, true)->default(99);
+            $table->tinyInteger('status', false, true)->default(1);
+            $table->tinyInteger('visible', false, true)->default(1);
             $table->timestamps();
             $table->engine = 'InnoDB';
         });

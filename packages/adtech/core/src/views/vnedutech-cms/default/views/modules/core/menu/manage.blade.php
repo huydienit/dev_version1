@@ -1,10 +1,12 @@
 @extends('layouts.default')
 
 {{-- Page title --}}
-@section('title'){{ $title = trans('adtech-core::titles.domain.manage') }}@stop
+@section('title'){{ $title = trans('adtech-core::titles.menu.manage') }}@stop
 
 {{-- page level styles --}}
 @section('header_styles')
+    <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/select2/css/select2-bootstrap.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/datatables/css/dataTables.bootstrap.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/css/pages/tables.css') }}" rel="stylesheet" type="text/css"/>
 @stop
@@ -30,13 +32,16 @@
         <div class="row">
             <div class="panel panel-primary ">
                 <div class="panel-heading clearfix">
-                    <h4 class="panel-title pull-left"><i class="livicon" data-name="users" data-size="16"
-                                                         data-loop="true" data-c="#fff" data-hc="white"></i>
-                        {{ $title }}
-                    </h4>
+                    <div class="pull-left">
+                        <select class="form-control select2" id="select_domain">
+                            @foreach($domains as $domain)
+                                <option value="{{$domain->domain_id}}" {{ ($domain->domain_id == $domain_id) ? 'selected' : '' }}>{{$domain->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="pull-right">
-                        @if ($USER_LOGGED->canAccess('adtech.core.domain.create'))
-                            <a href="{{ route('adtech.core.domain.create') }}" class="btn btn-sm btn-default"><span
+                        @if ($USER_LOGGED->canAccess('adtech.core.menu.create'))
+                            <a href="{{ route('adtech.core.menu.create', ['domain_id' => $domain_id]) }}" class="btn btn-sm btn-default"><span
                                     class="glyphicon glyphicon-plus"></span> {{ trans('adtech-core::buttons.create') }}</a>
                         @endif
                     </div>
@@ -47,8 +52,10 @@
                         <table class="table table-bordered" id="table">
                             <thead>
                             <tr class="filters">
-                                <th class="fit-content">{{ trans('adtech-core::common.id') }}</th>
-                                <th>{{ trans('adtech-core::common.domain.name') }}</th>
+                                <th class="fit-content">{{ trans('adtech-core::common.sequence') }}</th>
+                                <th>{{ trans('adtech-core::common.menu.name') }}</th>
+                                <th>{{ trans('adtech-core::common.menu.route_name') }}</th>
+                                <th class="fit-content">{{ trans('adtech-core::common.menu.icon') }}</th>
                                 <th style="width: 120px">{{ trans('adtech-core::common.created_at') }}</th>
                                 <th style="width: 120px">{{ trans('adtech-core::common.update_at') }}</th>
                                 <th class="fit-content">{{ trans('adtech-core::common.action') }}</th>
@@ -64,6 +71,7 @@
 
 {{-- page level scripts --}}
 @section('footer_scripts')
+    <script type="text/javascript" src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/select2/js/select2.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/datatables/js/jquery.dataTables.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/vendor/' . $group_name . '/' . $skin . '/vendors/datatables/js/dataTables.bootstrap.js') }}"></script>
 
@@ -72,10 +80,12 @@
             var table = $('#table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('adtech.core.domain.data') }}',
+                ajax: '{{ route('adtech.core.menu.data', ['domain_id' => $domain_id]) }}',
                 columns: [
-                    { data: 'domain_id', name: 'domain_id' },
+                    { data: 'DT_Row_Index', name: 'DT_Row_Index' },
                     { data: 'name', name: 'name' },
+                    { data: 'route_name', name: 'route_name' },
+                    { data: 'icon', name: 'icon' },
                     { data: 'created_at', name: 'created_at'},
                     { data: 'updated_at', name: 'updated_at'},
                     { data: 'actions', name: 'actions', orderable: false, searchable: false, className: 'fit-content'}
@@ -106,6 +116,20 @@
         $(function () {
             $('body').on('hidden.bs.modal', '.modal', function () {
                 $(this).removeData('bs.modal');
+            });
+
+            $("#select_domain").select2({
+                theme:"bootstrap",
+                placeholder:"select a domain"
+            }).on("change", function (e) {
+                var domain_id = this.options[this.selectedIndex].value;
+                var url = window.location.pathname;
+                if (url.indexOf('?') > -1){
+                    url += '&domain_id=' + domain_id
+                }else{
+                    url += '?domain_id=' + domain_id
+                }
+                window.location.href = url;
             });
         });
     </script>

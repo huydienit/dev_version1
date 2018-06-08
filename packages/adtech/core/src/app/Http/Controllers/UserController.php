@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use Adtech\Application\Cms\Controllers\Controller as Controller;
 use Adtech\Core\App\Repositories\UserRepository;
 use Adtech\Core\App\Http\Requests\UserRequest;
+use Adtech\Core\App\Repositories\RoleRepository;
 use Adtech\Core\App\Models\Role;
 use Adtech\Core\App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Yajra\Datatables\Datatables;
 use Spatie\Activitylog\Models\Activity;
+use Auth;
 
 
 class UserController extends Controller
@@ -31,10 +33,12 @@ class UserController extends Controller
         'boolean' => "Sai định dạng",
         'confirmed' => "Xác nhận không chính xác",
     );
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, RoleRepository $roleRepository)
     {
         parent::__construct();
         $this->user = $userRepository;
+        $this->role = $roleRepository;
+        $this->_user = Auth::user();
     }
 
     public function manage(Request $request)
@@ -128,12 +132,14 @@ class UserController extends Controller
             return redirect()->route('adtech.core.user.manage')->with('error', trans('adtech-core::messages.error.permission'));
         }
 
-        $user_role_item = DB::select('select * from adtech_core_users_role where user_id = :id', ['id' => $user_id]);
-        if (null != $user_role_item) {
-            DB::table('adtech_core_users_role')->where('user_id', $user_id)->delete();
-        }
+        if (null != $user) {
 
-        if ($user->delete()) {
+            $user_role_item = DB::select('select * from adtech_core_users_role where user_id = :id', ['id' => $user_id]);
+            if (null != $user_role_item) {
+                DB::table('adtech_core_users_role')->where('user_id', $user_id)->delete();
+            }
+
+            $this->user->deleteID($user_id);
 
             activity('user')
                 ->performedOn($user)
@@ -193,7 +199,12 @@ class UserController extends Controller
     //Table Data to index page
     public function data()
     {
-        $users = User::with('roles');
+        $role_id = $this->_user->role_id;
+        $role = $this->role->find($role_id);
+        $users = User::with('roles')
+            ->whereHas('roles', function ($query) use ($role) {
+                $query->where('adtech_core_roles.sort', '>=', $role->sort);
+            });
         return Datatables::of($users)
             ->addColumn('role_name', function($users) {
                 return $users->roles[0]->name;
@@ -210,17 +221,27 @@ class UserController extends Controller
                 if ($users->permission_locked == 1) {
                     return $users->email;
                 } else {
-                    return $actions = '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id]) . '>' . $users->email . '</a>';
+                    if ($this->_user->canAccess('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id])) {
+                        return $actions = '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id]) . '>' . $users->email . '</a>';
+                    } else {
+                        return $users->email;
+                    }
                 }
             })
             ->addColumn('actions', function ($users) {
                 if ($users->permission_locked == 1) {
                     $actions = '';
                 } else {
-                    $actions = '<a href=' . route('adtech.core.user.log', ['type' => 'user', 'id' => $users->user_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log User"></i></a>
-                            <a href=' . route('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>
-                            <a href=' . route('adtech.core.user.show', ['user_id' => $users->user_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update User"></i></a>
-                            <a href=' . route('adtech.core.user.confirm-delete', ['user_id' => $users->user_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete User"></i></a>';
+                    $actions = '<a href=' . route('adtech.core.user.log', ['type' => 'user', 'id' => $users->user_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log User"></i></a>';
+                    if ($this->_user->canAccess('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id])) {
+                        $actions .= '<a href=' . route('adtech.core.permission.manage', ['object_type' => 'user', 'user_id' => $users->user_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="add Role"></i></a>';
+                    }
+                    if ($this->_user->canAccess('adtech.core.user.show', ['user_id' => $users->user_id])) {
+                        $actions .= '<a href=' . route('adtech.core.user.show', ['user_id' => $users->user_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update User"></i></a>';
+                    }
+                    if ($this->_user->canAccess('adtech.core.user.confirm-delete', ['user_id' => $users->user_id])) {
+                        $actions .= '<a href=' . route('adtech.core.user.confirm-delete', ['user_id' => $users->user_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete User"></i></a>';
+                    }
                 }
 
                 return $actions;

@@ -18,7 +18,7 @@ class Role extends Model
     protected $primaryKey = 'role_id';
 
     protected $guarded = ['role_id'];
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'sort'];
 
     public function canAccess($routeName, $params = null)
     {

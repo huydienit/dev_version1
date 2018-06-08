@@ -127,6 +127,8 @@ class Acl
 
 //            if ((in_array($pattern, $rules) && in_array($userPattern, $rules))
 //                || (!in_array($pattern, $rules) && in_array($userPattern, $rules)))
+
+
             if (in_array($userPattern, $rules)) {
                 return false;
             } elseif (in_array($pattern, $rules)) {

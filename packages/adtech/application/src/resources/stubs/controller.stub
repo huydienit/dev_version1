@@ -46,7 +46,8 @@ class controller_namespaceController extends Controller
         $controller_name_id = $request->input('controller_name_id');
         $controller_name = $this->controller_name->find($controller_name_id);
 
-        if ($controller_name->delete()) {
+        if (null != $controller_name) {
+            $this->controller_name->deleteID($controller_name_id);
             return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::messages.success.delete'));
         } else {
             return redirect()->route('vendor_name.package_name.controller_name.manage')->with('error', trans('vendor_nameup-package_nameup::messages.error.delete'));

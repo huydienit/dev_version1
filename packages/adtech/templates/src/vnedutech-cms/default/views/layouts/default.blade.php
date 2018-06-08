@@ -173,6 +173,7 @@
 <!-- end of global js -->
 <!-- begin page level js -->
 @yield('footer_scripts')
-        <!-- end page level js -->
+@yield('footer_scripts_more')
+<!-- end page level js -->
 </body>
 </html>

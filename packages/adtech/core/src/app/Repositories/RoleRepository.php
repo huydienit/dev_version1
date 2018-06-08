@@ -14,6 +14,10 @@ class RoleRepository extends Repository
         return 'Adtech\Core\App\Models\Role';
     }
 
+    public function deleteID($id) {
+        return $this->model->where('role_id', '=', $id)->update(['visible' => 0]);
+    }
+
     public function getById($id, $columns = ['*'])
     {
         return $this->model->where('role_id', '=', $id)->first($columns);

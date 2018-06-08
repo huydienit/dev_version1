@@ -28,6 +28,7 @@ class PermissionController extends Controller
      */
     private $_roleRepository;
     private static $_aclKey = 'ADTECH_CMS_ACL_RULES';
+    private $_user = null;
 
     public function __construct(UserRepository $userRepository, RoleRepository $roleRepository, PackageRepository $packageRepository)
     {
@@ -35,15 +36,20 @@ class PermissionController extends Controller
         $this->_userRepository = $userRepository;
         $this->_roleRepository = $roleRepository;
         $this->package = $packageRepository;
+        $this->_user = Auth::user();
     }
 
     public function manage(Request $request, $objectType, $objectId)
     {
+        $role_id = $this->_user->role_id;
+        $role = $this->_roleRepository->find($role_id);
+
         $object = null;
         $objectType = strtolower($objectType);
         switch ($objectType) {
             case 'role':
                 $object = $this->_roleRepository->getById($objectId);
+                if ($object->sort < $role->sort) abort(404);
                 break;
             case 'group':
                 break;
@@ -75,11 +81,14 @@ class PermissionController extends Controller
 
     public function manageMore(Request $request, $objectType, $objectId)
     {
+        $role_id = $this->_user->role_id;
+        $role = $this->_roleRepository->find($role_id);
         $object = null;
         $objectType = strtolower($objectType);
         switch ($objectType) {
             case 'role':
                 $object = $this->_roleRepository->getById($objectId);
+                if ($object->sort < $role->sort) abort(404);
                 break;
             case 'group':
                 break;
@@ -113,6 +122,9 @@ class PermissionController extends Controller
         $result['msg'] = 'Update Permission Fail';
 
         $user_id = Auth::id();
+        $role_id = $this->_user->role_id;
+        $role = $this->_roleRepository->find($role_id);
+
         $objectType = $request->input('object_type', 'role');
         $objectId = (int)$request->input('object_id');
         $allow = (int)$request->input('allow');
@@ -121,6 +133,7 @@ class PermissionController extends Controller
         switch ($objectType) {
             case 'role':
                 $object = $this->_roleRepository->getById($objectId);
+                if ($object->sort < $role->sort) abort(404);
                 break;
             case 'group':
                 break;

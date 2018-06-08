@@ -54,8 +54,9 @@ class DomainController extends Controller
         $domain_id = $request->input('domain_id');
         $domain = $this->domain->find($domain_id);
 
-        if ($domain->delete()) {
+        if (null != $domain) {
 
+            $this->domain->deleteID($domain_id);
             activity('domain')
                 ->performedOn($domain)
                 ->withProperties($request->all())
@@ -167,13 +168,23 @@ class DomainController extends Controller
         $domains = Domain::all();
         return Datatables::of($domains)
             ->editColumn('name', function ($domains) {
-                return $actions = '<a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '>' . $domains->name . '</a>';
+                if ($this->user->canAccess('adtech.core.package.manage')) {
+                    return $actions = '<a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '>' . $domains->name . '</a>';
+                } else {
+                    return $domains->name;
+                }
             })
             ->addColumn('actions', function ($domains) {
-                $actions = '<a href=' . route('adtech.core.domain.log', ['type' => 'domain', 'id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log domains"></i></a>
-                        <a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="package manage"></i></a>
-                        <a href=' . route('adtech.core.domain.show', ['domain_id' => $domains->domain_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update domain"></i></a>
-                        <a href=' . route('adtech.core.domain.confirm-delete', ['domain_id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete domains"></i></a>';
+                $actions = '<a href=' . route('adtech.core.domain.log', ['type' => 'domain', 'id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log domains"></i></a>';
+                if ($this->user->canAccess('adtech.core.package.manage')) {
+                    $actions .= '<a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="package manage"></i></a>';
+                }
+                if ($this->user->canAccess('adtech.core.domain.show')) {
+                    $actions .= '<a href=' . route('adtech.core.domain.show', ['domain_id' => $domains->domain_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update domain"></i></a>';
+                }
+                if ($this->user->canAccess('adtech.core.domain.confirm-delete')) {
+                    $actions .= '<a href=' . route('adtech.core.domain.confirm-delete', ['domain_id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#delete_confirm"><i class="livicon" data-name="trash" data-size="18" data-loop="true" data-c="#f56954" data-hc="#f56954" title="delete domains"></i></a>';
+                }
 
                 return $actions;
             })

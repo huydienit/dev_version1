@@ -366,10 +366,9 @@ class PackageController extends Controller
     public function manage(Request $request)
     {
         $domains = Domain::all(['domain_id', 'name']);
+        $domain_id = $this->domainDefault;
         if ($request->has('id')) {
             $domain_id = $request->input('id');
-        } else {
-            $domain_id = $domains[0]->domain_id;
         }
 
         $packages = Package::select('package')->distinct()->get();
@@ -640,11 +639,27 @@ class PackageController extends Controller
 
         return Datatables::of($packages)
             ->editColumn('status', function ($packages) use ($domain_id) {
-                if ($packages->domains[0]->pivot->status == 1) {
-                    $status = '<a href=' . route('adtech.core.package.confirm-status', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-success">Enable</span></a>';
-                } else {
-                    $status = '<a href=' . route('adtech.core.package.confirm-status', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-warning">Disable</span></a>
-                            <a href=' . route('adtech.core.package.confirm-delete', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#delete_confirm"><span class="label label-sm label-danger">Remove</span></a>';
+                $status = '';
+                if (count($packages->domains) > 0) {
+                    foreach ($packages->domains as $package) {
+                        if ($package->domain_id == $domain_id) {
+                            if ($package->pivot->status == 1) {
+                                if ($this->user->canAccess('adtech.core.package.confirm-status')) {
+                                    $status = '<a href=' . route('adtech.core.package.confirm-status', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-success">Enable</span></a>';
+                                } else {
+                                    $status = '<a href="#" data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-success">Enable</span></a>';
+                                }
+                            } else {
+                                if ($this->user->canAccess('adtech.core.package.confirm-status')) {
+                                    $status = '<a href=' . route('adtech.core.package.confirm-status', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-warning">Disable</span></a>
+                                    <a href=' . route('adtech.core.package.confirm-delete', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#delete_confirm"><span class="label label-sm label-danger">Remove</span></a>';
+                                } else {
+                                    $status = '<a href="#" data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-warning">Disable</span></a>';
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
                 return $status;
             })

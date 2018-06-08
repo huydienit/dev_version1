@@ -35,8 +35,10 @@
                         {{ $title }}
                     </h4>
                     <div class="pull-right">
-                        <a href="{{ route('adtech.core.role.create') }}" class="btn btn-sm btn-default"><span
+                        @if ($USER_LOGGED->canAccess('adtech.core.role.create'))
+                            <a href="{{ route('adtech.core.role.create') }}" class="btn btn-sm btn-default"><span
                                     class="glyphicon glyphicon-plus"></span> {{ trans('adtech-core::buttons.create') }}</a>
+                        @endif
                     </div>
                 </div>
                 <br/>
@@ -47,6 +49,7 @@
                             <tr class="filters">
                                 <th class="fit-content">{{ trans('adtech-core::common.id') }}</th>
                                 <th>{{ trans('adtech-core::common.role.name') }}</th>
+                                <th class="fit-content">{{ trans('adtech-core::common.role.sort') }}</th>
                                 <th style="width: 120px">{{ trans('adtech-core::common.created_at') }}</th>
                                 <th style="width: 120px">{{ trans('adtech-core::common.update_at') }}</th>
                                 <th class="fit-content">{{ trans('adtech-core::common.role.status') }}</th>
@@ -81,6 +84,7 @@
                 columns: [
                     { data: 'role_id', name: 'role_id' },
                     { data: 'name', name: 'name' },
+                    { data: 'sort', name: 'sort' },
                     { data: 'created_at', name: 'created_at'},
                     { data: 'updated_at', name: 'updated_at'},
                     { data: 'status', name: 'status' },

@@ -11,6 +11,8 @@ if ($host) {
             $appModules = (env($variable) != '') ? env($variable) : $newString;
             $packagesList = explode('_', $appModules);
             if (count($packagesList) > 0) {
+                if (!in_array($newString, $packagesList))
+                    array_unshift($packagesList, $newString);
                 foreach ($packagesList as $packages) {
                     $modules = explode('.', $packages);
                     $modulesConfig[$modules[0]] = explode(',', $modules[1]);
@@ -54,6 +56,7 @@ return [
     | Website backend url
     |--------------------------------------------------------------------------
     */
+    'api_prefix' => '/resource/dev/get',
     'admin_prefix' => '/admin',
     'homepage' => [
         'frontend' => [

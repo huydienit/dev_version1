@@ -50,6 +50,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @if ($USER_LOGGED->canAccess('adtech.core.package.create'))
                     <div class="pull-right" id="btnToolbarPackage">
                         <a class="btn btn-sm btn-default" data-href="#search_package" href="#search_package" data-toggle="modal">
                             <span class="glyphicon glyphicon-search"></span> {{ trans('adtech-core::buttons.search') }}
@@ -58,6 +59,7 @@
                             <span class="glyphicon glyphicon-plus"></span> {{ trans('adtech-core::buttons.create_package') }}
                         </a>
                     </div>
+                    @endif
                 </div>
                 <br/>
                 <div class="panel-body">

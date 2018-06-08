@@ -19,9 +19,10 @@ class CreateAdtechCoreUsersTable extends Migration
             $table->string('password');
             $table->string('contact_name', 255);
             $table->string('salt', 3)->default('sal');
-            $table->tinyInteger('status')->default(1);
-            $table->integer('activated')->default(0);
-            $table->tinyInteger('permission_locked')->default(0);
+            $table->tinyInteger('status', false, true)->default(1);
+            $table->tinyInteger('activated', false, true)->default(0);
+            $table->tinyInteger('permission_locked', false, true)->default(0);
+            $table->tinyInteger('visible', false, true)->default(1);
             $table->rememberToken();
             $table->timestamps();
             $table->engine = 'InnoDB';

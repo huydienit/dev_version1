@@ -56,6 +56,16 @@ Route::group(array('prefix' => $adminPrefix), function () {
         Route::get('adtech/core/role/delete', 'RoleController@delete')->name('adtech.core.role.delete');
         Route::get('adtech/core/role/confirm-delete', 'RoleController@getModalDelete')->name('adtech.core.role.confirm-delete');
 
+        Route::get('adtech/core/menu/log', 'MenuController@log')->name('adtech.core.menu.log');
+        Route::get('adtech/core/menu/data', 'MenuController@data')->name('adtech.core.menu.data');
+        Route::get('adtech/core/menu/manage', 'MenuController@manage')->name('adtech.core.menu.manage');
+        Route::get('adtech/core/menu/create', 'MenuController@create')->name('adtech.core.menu.create');
+        Route::post('adtech/core/menu/add', 'MenuController@add')->name('adtech.core.menu.add');
+        Route::get('adtech/core/menu/show', 'MenuController@show')->name('adtech.core.menu.show');
+        Route::put('adtech/core/menu/update', 'MenuController@update')->name('adtech.core.menu.update');
+        Route::get('adtech/core/menu/delete', 'MenuController@delete')->name('adtech.core.menu.delete');
+        Route::get('adtech/core/menu/confirm-delete', 'MenuController@getModalDelete')->name('adtech.core.menu.confirm-delete');
+
         Route::get('adtech/core/domain/log', 'DomainController@log')->name('adtech.core.domain.log');
         Route::get('adtech/core/domain/data', 'DomainController@data')->name('adtech.core.domain.data');
         Route::get('adtech/core/domain/manage', 'DomainController@manage')->name('adtech.core.domain.manage');

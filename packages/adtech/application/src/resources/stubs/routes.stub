@@ -1,6 +1,6 @@
 <?php
-
-$adminPrefix = config('site.admin_prefix');
+$adminPrefix = '';
+//$adminPrefix = config('site.admin_prefix');
 Route::group(array('prefix' => $adminPrefix), function() {
     Route::get('vendor_name/package_name/index/log', 'IndexController@log')->name('vendor_name.package_name.index.log');
     Route::get('vendor_name/package_name/index/data', 'IndexController@data')->name('vendor_name.package_name.index.data');

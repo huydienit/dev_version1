@@ -22,4 +22,8 @@ class criteria_class extends Criteria {
     {
         return $model;
     }
+
+    public function deleteID($id) {
+        return $this->model->where('id', '=', $id)->update(['visible' => 0]);
+    }
 }

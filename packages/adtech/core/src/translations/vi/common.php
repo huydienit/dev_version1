@@ -20,14 +20,27 @@ return [
     ],
     "role" => [
         "name" => "Name",
+        "sort" => "Sort",
         "status" => "Status",
         "permission_locked" => "Permission locked",
-        "name_here" => "Role name here..."
+        "name_here" => "Role name here...",
+        "sort_here" => "Role sort here..."
     ],
     "domain" => [
         "name" => "Name",
         "status" => "Status",
         "name_here" => "Domain name here..."
+    ],
+    "menu" => [
+        "icon" => "Icon",
+        "name" => "Name",
+        "sort" => "Sort",
+        "status" => "Status",
+        "route_name" => "Route name",
+        "icon_here" => "Icon name here...",
+        "sort_here" => "Menu sort here...",
+        "name_here" => "Menu name here...",
+        "route_name_here" => "Route name here..."
     ],
     "package" => [
         "package" => "Package",
