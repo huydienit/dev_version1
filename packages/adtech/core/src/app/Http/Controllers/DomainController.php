@@ -175,7 +175,10 @@ class DomainController extends Controller
                 }
             })
             ->addColumn('actions', function ($domains) {
-                $actions = '<a href=' . route('adtech.core.domain.log', ['type' => 'domain', 'id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log domains"></i></a>';
+                $actions = '';
+                if ($this->user->canAccess('adtech.core.domain.log')) {
+                    $actions .= '<a href=' . route('adtech.core.domain.log', ['type' => 'domain', 'id' => $domains->domain_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log domains"></i></a>';
+                }
                 if ($this->user->canAccess('adtech.core.package.manage')) {
                     $actions .= '<a href=' . route('adtech.core.package.manage', ['id' => $domains->domain_id]) . '><i class="livicon" data-name="gear" data-size="18" data-loop="true" data-c="#6CC66C" data-hc="#6CC66C" title="package manage"></i></a>';
                 }

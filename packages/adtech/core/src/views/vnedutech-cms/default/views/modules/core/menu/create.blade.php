@@ -55,21 +55,31 @@
                             {!! Form::text('name', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus','placeholder'=> trans('adtech-core::common.menu.name_here'))) !!}
                             <span class="help-block">{{ $errors->first('name', ':message') }}</span>
                         </div>
+
                         <label>Route Name</label>
                         <div class="form-group {{ $errors->first('route_name', 'has-error') }}">
                             <select class="form-control select2" title="Select route name..." name="route_name"
                                     id="parent">
+                                <option value="#">No Link</option>
                                 @foreach($listRouteName as $routeName)
                                     <option value="{{ $routeName }}">{{ $routeName }}</option>
                                 @endforeach
                             </select>
                             <span class="help-block">{{ $errors->first('route_name', ':message') }}</span>
                         </div>
+
                         <label>Sort</label>
                         <div class="form-group {{ $errors->first('sort', 'has-error') }}">
                             {!! Form::number('sort', null, array('min' => 0, 'max' => 99,'class' => 'form-control input-lg', 'placeholder'=> trans('adtech-core::common.menu.sort_here'))) !!}
                             <span class="help-block">{{ $errors->first('sort', ':message') }}</span>
                         </div>
+
+                        <label>Icon</label>
+                        <div class="form-group {{ $errors->first('icon', 'has-error') }}">
+                            {!! Form::text('icon', null, array('class' => 'form-control input-lg', 'placeholder'=>trans('adtech-core::common.menu.icon_here'))) !!}
+                            <span class="help-block">{{ $errors->first('icon', ':message') }}</span>
+                        </div>
+
                         <div class="form-group">
                             {!! Form::hidden('domain_id', $domain_id) !!}
                         </div>

@@ -70,6 +70,8 @@ class MenuController extends Controller
             $domain_id = $request->input('domain_id');
         }
         $menus = $this->_menuList;
+        if (empty($menus))
+            $menus = array();
 
         //get route name list
         $app = app();
@@ -237,7 +239,10 @@ class MenuController extends Controller
                     return $icon;
                 })
                 ->addColumn('actions', function ($menus) {
-                    $actions = '<a href=' . route('adtech.core.menu.log', ['type' => 'menu', 'id' => $menus->menu_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log menus"></i></a>';
+                    $actions = '';
+                    if ($this->user->canAccess('adtech.core.menu.log')) {
+                        $actions .= '<a href=' . route('adtech.core.menu.log', ['type' => 'menu', 'id' => $menus->menu_id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log menus"></i></a>';
+                    }
                     if ($this->user->canAccess('adtech.core.menu.show')) {
                         $actions .= '<a href=' . route('adtech.core.menu.show', ['menu_id' => $menus->menu_id]) . '><i class="livicon" data-name="edit" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="update menu"></i></a>';
                     }

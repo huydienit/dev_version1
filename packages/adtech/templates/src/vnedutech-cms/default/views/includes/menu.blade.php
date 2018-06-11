@@ -16,14 +16,16 @@
         @endif
 
         @if ($menu->parent > 0)
-            @if ($USER_LOGGED->canAccess($menu->route_name))
-                <li {!! (Request::is('admin/' . str_replace('.', '/', substr($menu->route_name, 0, strrpos($menu->route_name, '.'))) . '/*') ? 'class="active"' : '') !!}>
-                    <a href="{{ route($menu->route_name) }}">
-                        <i class="livicon" data-name="{{ ($menu->icon != '') ? $menu->icon : 'question' }}" data-size="18" data-c="{{ $COLOR_LIST[rand(0, 5)] }}" data-hc="{{ $COLOR_LIST[rand(0, 5)] }}"
-                           data-loop="true"></i>
-                        <span class="title">{{ $menu->name }}</span>
-                    </a>
-                </li>
+            @if (Illuminate\Support\Facades\Route::has($menu->route_name))
+                @if ($USER_LOGGED->canAccess($menu->route_name))
+                    <li {!! (Request::is('admin/' . str_replace('.', '/', substr($menu->route_name, 0, strrpos($menu->route_name, '.'))) . '/*') ? 'class="active"' : '') !!}>
+                        <a href="{{ route($menu->route_name) }}">
+                            <i class="livicon" data-name="{{ ($menu->icon != '') ? $menu->icon : 'question' }}" data-size="18" data-c="{{ $COLOR_LIST[rand(0, 5)] }}" data-hc="{{ $COLOR_LIST[rand(0, 5)] }}"
+                               data-loop="true"></i>
+                            <span class="title">{{ $menu->name }}</span>
+                        </a>
+                    </li>
+                @endif
             @endif
         @endif
 
@@ -37,10 +39,13 @@
         $(function () {
             $( "li.menu_more" ).each(function( i, element ) {
                 var sub_menu = element.querySelector('ul.sub-menu');
-                var checkActive = sub_menu.querySelector('li.active');
-
-                if (checkActive != null) {
-                    element.classList.add('active');
+                if (sub_menu.children.length > 0) {
+                    var checkActive = sub_menu.querySelector('li.active');
+                    if (checkActive != null) {
+                        element.classList.add('active');
+                    }
+                } else {
+                    element.style.display = 'none';
                 }
             });
         });

@@ -92,6 +92,7 @@ Route::group(array('prefix' => $adminPrefix), function () {
         Route::post('adtech/core/package/search-package', 'PackageController@searchPackage')->name('adtech.core.package.search-package');
         Route::get('adtech/core/package/confirm-delete', 'PackageController@getModalDelete')->name('adtech.core.package.confirm-delete');
         Route::get('adtech/core/package/confirm-status', 'PackageController@getModalStatus')->name('adtech.core.package.confirm-status');
+        Route::get('adtech/core/package/confirm-public', 'PackageController@getModalPublic')->name('adtech.core.package.confirm-public');
 
         Route::get('adtech/core/user/log', 'UserController@log')->name('adtech.core.user.log');
         Route::get('adtech/core/user/data', 'UserController@data')->name('adtech.core.user.data');

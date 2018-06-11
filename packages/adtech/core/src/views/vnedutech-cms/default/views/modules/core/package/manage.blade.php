@@ -108,6 +108,12 @@
             <div class="modal-content"></div>
         </div>
     </div>
+    <div class="modal fade" id="public_confirm" tabindex="-1" role="dialog" aria-labelledby="package_public_confirm_title"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <div class="modal fade" id="log" tabindex="-1" role="dialog" aria-labelledby="user_log_title"
          aria-hidden="true">
         <div class="modal-dialog">

@@ -22,5 +22,9 @@ return [
     "module_status" => [
         "title" => "Change Status Package",
         "body" => "Are you sure to change status this package?"
+    ],
+    "module_public" => [
+        "title" => "Public Package",
+        "body" => "Are you sure to public this package?"
     ]
 ];

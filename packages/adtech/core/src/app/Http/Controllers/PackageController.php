@@ -188,66 +188,105 @@ class PackageController extends Controller
         ])->first();
 
         if (null != $domainsPackage) {
-            $domainsPackage->status = ($domainsPackage->status == 0) ? 1 : 0;
-            if ($domainsPackage->save()) {
+
+            if ($request->has('public')) {
                 if ($domainsPackage->status == 1) {
                     $package = $this->package->find($package_id);
-
-                    //khai bao trong composer root
-                    $path = base_path('composer.json');
-                    $composerFile = file_get_contents($path);
-                    $composerObject = json_decode($composerFile, true);
-                    $repositories = $composerObject['repositories'];
-                    $require = $composerObject['require'];
-                    $autoload_dev_classmap = $composerObject['autoload-dev']['classmap'];
-                    $urlRepositorie = "packages"."/".$package->package."/".$package->module;
-
-                    $checkRepo = true;
-                    if (count($repositories) > 0) {
-                        foreach ($repositories as $repositorie) {
-                            if ($repositorie['url'] == $urlRepositorie) {
-                                $checkRepo = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($checkRepo) {
-                        //them vao composer repositories
-                        $repositoriesMore = new \stdClass();
-                        $repositoriesMore->type = "path";
-                        $repositoriesMore->url = $urlRepositorie;
-                        $repositoriesMore->options = (object) array("symlink" => true);
-                        $repositories[] = $repositoriesMore;
-
-                        //them vao composer require
-                        $require[$package->package . '/' . $package->module] = 'dev-master';
-
-                        //them vao composer autoload dev
-                        $autoload_dev_classmap[] = 'packages/' . $package->package . '/' . $package->module . '/src/';
-
-                        $composerObject['repositories'] = $repositories;
-                        $composerObject['require'] = $require;
-                        $composerObject['autoload-dev']['classmap'] = $autoload_dev_classmap;
-
-                        file_put_contents($path, str_replace('\/', '/', json_encode($composerObject)));
-                    }
 
                     activity('package')
                         ->performedOn($domainsPackage)
                         ->withProperties($request->all())
-                        ->log('User: :causer.email - Update Status Package - domain_id: :properties.domain_id, package_id: :properties.package_id, status: ' . $domainsPackage->status);
+                        ->log('User: :causer.email - Public Package - domain_id: :properties.domain_id, package_id: :properties.package_id, status: ' . $domainsPackage->status);
+
+                    //migrate + seed
+                    $pathDatabase = 'packages/' . $package->package . '/' . $package->module . '/src/database/migrations';
+                    shell_exec('cd ../ && php artisan migrate --path="' . $pathDatabase . '"');
 
                     // Dump autoload.
                     $this->composer->dumpAutoloads();
+//                    shell_exec('cd ../ && /egserver/php/bin/composer dump-autoload');
 
                     //bung file /views/publics module
+                    \Artisan::call('vendor:publish', [
+                        '--provider' => ucfirst($package->package) .'\\' . ucfirst($package->module) . '\\' . ucfirst($package->module) . 'ServiceProvider'
+                    ]);
+
+                    return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.update'));
+                }
+            } else {
+                $domainsPackage->status = ($domainsPackage->status == 0) ? 1 : 0;
+                if ($domainsPackage->save()) {
+                    if ($domainsPackage->status == 1) {
+                        $package = $this->package->find($package_id);
+
+                        //khai bao trong composer root
+                        $path = base_path('composer.json');
+                        $composerFile = file_get_contents($path);
+                        $composerObject = json_decode($composerFile, true);
+                        $repositories = $composerObject['repositories'];
+                        $require = $composerObject['require'];
+                        $autoload_dev_classmap = $composerObject['autoload-dev']['classmap'];
+                        $autoload_psr4 = $composerObject['autoload']['psr-4'];
+                        $urlRepositorie = "packages"."/".$package->package."/".$package->module;
+
+                        $checkRepo = true;
+                        if (count($repositories) > 0) {
+                            foreach ($repositories as $repositorie) {
+                                if ($repositorie['url'] == $urlRepositorie) {
+                                    $checkRepo = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if ($checkRepo) {
+                            //them vao composer repositories
+                            $repositoriesMore = new \stdClass();
+                            $repositoriesMore->type = "path";
+                            $repositoriesMore->url = $urlRepositorie;
+                            $repositoriesMore->options = (object) array("symlink" => true);
+                            $repositories[] = $repositoriesMore;
+
+                            //them vao composer require
+                            $require[$package->package . '/' . $package->module] = 'dev-master';
+
+                            //them vao composer autoload dev
+                            $autoload_dev_classmap[] = 'packages/' . $package->package . '/' . $package->module . '/src/';
+
+                            //"Adtech\\Application\\":"packages/adtech/application/src/"
+                            $str_psr4 = ucfirst($package->package) . '\\' . ucfirst($package->module) . '\\';
+                            $autoload_psr4[$str_psr4] = 'packages/' . $package->package . '/' . $package->module . '/src/';
+
+                            $composerObject['repositories'] = $repositories;
+                            $composerObject['require'] = $require;
+                            $composerObject['autoload-dev']['classmap'] = $autoload_dev_classmap;
+                            $composerObject['autoload']['psr-4'] = $autoload_psr4;
+
+                            file_put_contents($path, str_replace('\/', '/', json_encode($composerObject)));
+                        }
+
+                        activity('package')
+                            ->performedOn($domainsPackage)
+                            ->withProperties($request->all())
+                            ->log('User: :causer.email - Update Status Package - domain_id: :properties.domain_id, package_id: :properties.package_id, status: ' . $domainsPackage->status);
+
+                        //migrate + seed
+                        $pathDatabase = 'packages/' . $package->package . '/' . $package->module . '/src/database/migrations';
+                        shell_exec('cd ../ && php artisan migrate --path="' . $pathDatabase . '"');
+
+                        // Dump autoload.
+                        $this->composer->dumpAutoloads();
+//                    shell_exec('cd ../ && /egserver/php/bin/composer dump-autoload');
+
+                        //bung file /views/publics module
 //                    \Artisan::call('vendor:publish', [
 //                        '--provider' => ucfirst($package->package) .'\\' . ucfirst($package->module) . '\\' . ucfirst($package->module) . 'ServiceProvider'
 //                    ]);
+                    }
+                    return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.update'));
                 }
-                return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.update'));
             }
+
         }
         return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('error', trans('adtech-core::messages.error.update'));
     }
@@ -449,6 +488,30 @@ class PackageController extends Controller
         }
     }
 
+    public function getModalPublic(PackageRequest $request)
+    {
+        $model = 'module_public';
+        $confirm_route = $error = null;
+        $validator = Validator::make($request->all(), [
+            'package_id' => 'required|numeric',
+            'domain_id' => 'required|numeric'
+        ], $this->messages);
+        if (!$validator->fails()) {
+            try {
+                $confirm_route = route('adtech.core.package.status', [
+                    'package_id' => $request->input('package_id'),
+                    'domain_id' => $request->input('domain_id'),
+                    'public' => 1
+                ]);
+                return view('includes.modal_confirmation', compact('error', 'model', 'confirm_route'));
+            } catch (GroupNotFoundException $e) {
+                return view('includes.modal_confirmation', compact('error', 'model', 'confirm_route'));
+            }
+        } else {
+            return $validator->messages();
+        }
+    }
+
     public function getModalSearch(PackageRequest $request)
     {
         $model = 'module_status';
@@ -606,10 +669,16 @@ class PackageController extends Controller
         $arrModules = [];
         if ($packages && count($packages) > 0) {
             foreach ($packages as $k => $package) {
-                if ($package->domains[0]->pivot->status == 1) {
-                    $package_name = $package->package;
-                    $module_name = $package->module;
-                    $arrModules[$package_name][] = $module_name;
+                if (count($package->domains) > 0) {
+                    foreach ($package->domains as $item) {
+                        if ($item->domain_id == $domain_id) {
+                            if ($item->pivot->status == 1) {
+                                $package_name = $package->package;
+                                $module_name = $package->module;
+                                $arrModules[$package_name][] = $module_name;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -645,7 +714,8 @@ class PackageController extends Controller
                         if ($package->domain_id == $domain_id) {
                             if ($package->pivot->status == 1) {
                                 if ($this->user->canAccess('adtech.core.package.confirm-status')) {
-                                    $status = '<a href=' . route('adtech.core.package.confirm-status', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-success">Enable</span></a>';
+                                    $status = '<a href=' . route('adtech.core.package.confirm-status', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-success">Enable</span></a>
+                                    <a href=' . route('adtech.core.package.confirm-public', ['package_id' => $packages->package_id, 'domain_id' => $domain_id]) . ' data-toggle="modal" data-target="#public_confirm"><span class="label label-sm label-info">Public</span></a>';
                                 } else {
                                     $status = '<a href="#" data-toggle="modal" data-target="#status_confirm"><span class="label label-sm label-success">Enable</span></a>';
                                 }
@@ -689,9 +759,13 @@ class PackageController extends Controller
                     'domain_id' => $domain_id
                 ])->first();
 
-                $actions = '<a href=' . route('adtech.core.package.log', ['type' => 'package', 'id' => $domainsPackage->id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log package"></i></a>
-                        <a href=' . route('adtech.core.package.download', ['package_id' => $packages->package_id]) . '><i class="livicon" data-name="download" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="download packages"></i></a>';
-
+                $actions = '';
+                if ($this->user->canAccess('adtech.core.package.log')) {
+                    $actions .= '<a href=' . route('adtech.core.package.log', ['type' => 'package', 'id' => $domainsPackage->id]) . ' data-toggle="modal" data-target="#log"><i class="livicon" data-name="info" data-size="18" data-loop="true" data-c="#F99928" data-hc="#F99928" title="Log package"></i></a>';
+                }
+                if ($this->user->canAccess('adtech.core.package.download')) {
+                    $actions .= '<a href=' . route('adtech.core.package.download', ['package_id' => $packages->package_id]) . '><i class="livicon" data-name="download" data-size="18" data-loop="true" data-c="#428BCA" data-hc="#428BCA" title="download packages"></i></a>';
+                }
                 return $actions;
             })
             ->rawColumns(['actions', 'status', 'methods'])
