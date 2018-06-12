@@ -10,20 +10,27 @@ use Adtech\Core\App\Models\Domain;
 use Yajra\Datatables\Datatables;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Filesystem\Filesystem;
 use Validator;
 
 class DomainController extends Controller
 {
+    /**
+     * @var Filesystem
+     */
+    protected $files;
+
     private $messages = array(
         'name.regex' => "Sai định dạng",
         'required' => "Bắt buộc",
         'numeric'  => "Phải là số"
     );
 
-    public function __construct(DomainRepository $domainRepository)
+    public function __construct(DomainRepository $domainRepository, Filesystem $files)
     {
         parent::__construct();
         $this->domain = $domainRepository;
+        $this->files = $files;
     }
 
     public function add(DomainRequest $request)
@@ -32,6 +39,13 @@ class DomainController extends Controller
         $domain->save();
 
         if ($domain->domain_id) {
+
+            $directory = '../packages/adtech/application/src/configs/' . $domain->name;
+            if (!$this->files->isDirectory($directory)) {
+                //copy folder chua configs
+                mkdir($directory, 0755, true);
+                shell_exec('cd ../ && cp -r packages/adtech/application/src/configs/default.local.vn/*' . ' packages/adtech/application/src/configs/' . $domain->name);
+            }
 
             activity('domain')
                 ->performedOn($domain)
@@ -165,7 +179,7 @@ class DomainController extends Controller
             }
         }
 
-        $domains = Domain::all();
+        $domains = Domain::where('visible', 1)->get();
         return Datatables::of($domains)
             ->editColumn('name', function ($domains) {
                 if ($this->user->canAccess('adtech.core.package.manage')) {

@@ -52,7 +52,7 @@ return [
     | Website template
     |--------------------------------------------------------------------------
     */
-    'group_name' => 'afp-cms',
+    'group_name' => 'vnedutech-cms',
     'angular_js' => true,
     'desktop' => [
         'template' => 'default',
@@ -67,8 +67,7 @@ return [
          * vendor => [packages or modules]
          * example: 'adtech' => ['core', 'blog']
          */
-        'adtech' => ['core'],
-        'afp' => ['core']
+        'adtech' => ['core']
     ],
     'firebase' => [
         'domain' => '',

@@ -33,34 +33,13 @@ return [
 
     'connections' => [
 
-//        'sqlite' => [
-//            'driver' => 'sqlite',
-//            'database' => env('DB_DATABASE', database_path('database.sqlite')),
-//            'prefix' => '',
-//        ],
-
         'mysql' => [
             'driver' => 'mysql',
-            'host' => '10.3.14.106',
+            'host' => 'localhost',
             'port' => '3306',
-            'database' => 'afp',
-            'username' => 'afp',
-            'password' => '3DMzbZ8zWJsZmFl',
-            ///'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8',
-            'collation' => 'utf8_general_ci',
-            'engine' => 'InnoDB ROW_FORMAT=DYNAMIC',
-            'prefix' => 'g_',
-            'strict' => true,
-            'engine' => null,
-        ],
-/*        'mysql2' => [
-            'driver' => 'mysql',
-            'host' => '10.3.14.42',
-            'port' => '3306',
-            'database' => 'publisher',
-            'username' => 'diennh',
-            'password' => 'E8yLd1GD28LskSP',
+            'database' => 'database',
+            'username' => 'username',
+            'password' => 'password',
             ///'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8',
             'collation' => 'utf8_general_ci',
@@ -68,20 +47,7 @@ return [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
-        ],*/
-
-//        'pgsql' => [
-//            'driver' => 'pgsql',
-//            'host' => env('DB_HOST', '127.0.0.1'),
-//            'port' => env('DB_PORT', '5432'),
-//            'database' => env('DB_DATABASE', 'forge'),
-//            'username' => env('DB_USERNAME', 'forge'),
-//            'password' => env('DB_PASSWORD', ''),
-//            'charset' => 'utf8',
-//            'prefix' => '',
-//            'schema' => 'public',
-//            'sslmode' => 'prefer',
-//        ],
+        ]
 
     ],
 

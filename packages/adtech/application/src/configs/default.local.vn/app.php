@@ -12,7 +12,7 @@ return [
     | any other location as required by the application or its packages.
     */
 
-    'name' => 'AFP CMS',
+    'name' => 'VNEDUTECH CMS',
 
     /*
     |--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ return [
     |
     */
 
-    'url' => 'http://dev.afp.admicro.vn',
+    'url' => 'http://default.local.vn',
 
     /*
     |--------------------------------------------------------------------------
@@ -177,10 +177,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
-
-        Silber\Bouncer\BouncerServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class
     ],
 
     /*
@@ -228,10 +225,7 @@ return [
         'Storage' => Illuminate\Support\Facades\Storage::class,
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
-        'View' => Illuminate\Support\Facades\View::class,
-
-        'Bouncer' => Silber\Bouncer\BouncerFacade::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'View' => Illuminate\Support\Facades\View::class
     ],
 
 ];

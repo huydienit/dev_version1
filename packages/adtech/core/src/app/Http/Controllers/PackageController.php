@@ -200,16 +200,16 @@ class PackageController extends Controller
 
                     //migrate + seed
                     $pathDatabase = 'packages/' . $package->package . '/' . $package->module . '/src/database/migrations';
-                    shell_exec('cd ../ && php artisan migrate --path="' . $pathDatabase . '"');
+                    shell_exec('cd ../ && php artisan migrate:refresh --path="' . $pathDatabase . '"');
 
                     // Dump autoload.
-                    $this->composer->dumpAutoloads();
+//                    $this->composer->dumpAutoloads();
 //                    shell_exec('cd ../ && /egserver/php/bin/composer dump-autoload');
 
                     //bung file /views/publics module
-                    \Artisan::call('vendor:publish', [
-                        '--provider' => ucfirst($package->package) .'\\' . ucfirst($package->module) . '\\' . ucfirst($package->module) . 'ServiceProvider'
-                    ]);
+//                    \Artisan::call('vendor:publish', [
+//                        '--provider' => ucfirst($package->package) .'\\' . ucfirst($package->module) . '\\' . ucfirst($package->module) . 'ServiceProvider'
+//                    ]);
 
                     return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.update'));
                 }
@@ -279,9 +279,9 @@ class PackageController extends Controller
 //                    shell_exec('cd ../ && /egserver/php/bin/composer dump-autoload');
 
                         //bung file /views/publics module
-//                    \Artisan::call('vendor:publish', [
-//                        '--provider' => ucfirst($package->package) .'\\' . ucfirst($package->module) . '\\' . ucfirst($package->module) . 'ServiceProvider'
-//                    ]);
+                        \Artisan::call('vendor:publish', [
+                            '--provider' => ucfirst($package->package) .'\\' . ucfirst($package->module) . '\\' . ucfirst($package->module) . 'ServiceProvider'
+                        ]);
                     }
                     return redirect()->route('adtech.core.package.manage', ['id' => $domain_id])->with('success', trans('adtech-core::messages.success.update'));
                 }
@@ -312,6 +312,7 @@ class PackageController extends Controller
                 $repositories = $repositoriesEmpty = $composerObject['repositories'];
                 $require = $composerObject['require'];
                 $autoload_dev_classmap = $composerObject['autoload-dev']['classmap'];
+                $autoload_psr4 = $composerObject['autoload']['psr-4'];
                 $urlRepositorie = "packages"."/".$package->package."/".$package->module;
 
                 $checkRepo = false;
@@ -332,12 +333,20 @@ class PackageController extends Controller
                         unset($autoload_dev_classmap[$key]);
                     }
 
+                    $str_psr4 = ucfirst($package->package) . '\\' . ucfirst($package->module) . '\\';
+                    unset($autoload_psr4[$str_psr4]);
+
                     $composerObject['require'] = $require;
                     $composerObject['repositories'] = $repositoriesEmpty;
                     $composerObject['autoload-dev']['classmap'] = $autoload_dev_classmap;
+                    $composerObject['autoload']['psr-4'] = $autoload_psr4;
 
                     file_put_contents($path, str_replace('\/', '/', json_encode($composerObject)));
                 }
+
+                //delete migrate
+                $pathDatabase = 'packages/' . $package->package . '/' . $package->module . '/src/database/migrations';
+                shell_exec('cd ../ && php artisan migrate:reset --path="' . $pathDatabase . '"');
 
                 activity('package')
                     ->performedOn($domainsPackage)
