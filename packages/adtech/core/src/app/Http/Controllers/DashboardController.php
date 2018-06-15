@@ -10,9 +10,10 @@ use Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $users = $blogs = [];
+//        $request->session()->forget('tab');
         $analytics_error = $pageVisits = $blog_count = $visitors = $user_count = $month_visits = $year_visits = rand(100, 1000);
         return view('ADTECH-CORE::modules.core.dashboard.index',
             compact('analytics_error', 'users', 'blogs', 'pageVisits', 'blog_count', 'visitors', 'user_count', 'month_visits', 'year_visits'));

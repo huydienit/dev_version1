@@ -44,16 +44,10 @@
                                     id="parent">
                                 <option value="0">Root menu</option>
                                 @foreach($menus as $menu)
-                                    <option value="{{ $menu->menu_id }}">{{ str_repeat('---', $menu->level) . $menu->name}}</option>
+                                    <option value="{{ $menu->menu_id }}">{{ str_repeat('---', $menu->level) . $menu->name }}</option>
                                 @endforeach
                             </select>
                             <span class="help-block">{{ $errors->first('parent', ':message') }}</span>
-                        </div>
-
-                        <label>Menu Name</label>
-                        <div class="form-group {{ $errors->first('name', 'has-error') }}">
-                            {!! Form::text('name', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus','placeholder'=> trans('adtech-core::common.menu.name_here'))) !!}
-                            <span class="help-block">{{ $errors->first('name', ':message') }}</span>
                         </div>
 
                         <label>Route Name</label>
@@ -68,15 +62,40 @@
                             <span class="help-block">{{ $errors->first('route_name', ':message') }}</span>
                         </div>
 
+                        <label>Group Name</label>
+                        <div class="form-group input-group {{ $errors->first('group', 'has-error') }}">
+                            {!! Form::text('group', null, array('class' => 'form-control', 'id' => 'group_name_txt', 'disabled' => true, 'style' => 'display:none', 'placeholder'=> trans('adtech-core::common.menu.group_name_here'))) !!}
+                            <select class="form-control" title="Select group name..." name="group" id="group_name_select">
+                                @if (count($menusGroups) == 0)
+                                    <option value="Hệ thống">Hệ thống</option>
+                                @endif
+
+                                @foreach($menusGroups as $groupName)
+                                    <option value="{{ $groupName->group }}">{{ $groupName->group }}</option>
+                                @endforeach
+                            </select>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" onclick="changeGroupType()">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </span>
+                        </div>
+
+                        <label>Menu Name</label>
+                        <div class="form-group {{ $errors->first('name', 'has-error') }}">
+                            {!! Form::text('name', null, array('class' => 'form-control', 'autofocus'=>'autofocus','placeholder'=> trans('adtech-core::common.menu.name_here'))) !!}
+                            <span class="help-block">{{ $errors->first('name', ':message') }}</span>
+                        </div>
+
                         <label>Sort</label>
                         <div class="form-group {{ $errors->first('sort', 'has-error') }}">
-                            {!! Form::number('sort', null, array('min' => 0, 'max' => 99,'class' => 'form-control input-lg', 'placeholder'=> trans('adtech-core::common.menu.sort_here'))) !!}
+                            {!! Form::number('sort', null, array('min' => 0, 'max' => 99,'class' => 'form-control', 'placeholder'=> trans('adtech-core::common.menu.sort_here'))) !!}
                             <span class="help-block">{{ $errors->first('sort', ':message') }}</span>
                         </div>
 
                         <label>Icon</label>
                         <div class="form-group {{ $errors->first('icon', 'has-error') }}">
-                            {!! Form::text('icon', null, array('class' => 'form-control input-lg', 'placeholder'=>trans('adtech-core::common.menu.icon_here'))) !!}
+                            {!! Form::text('icon', null, array('class' => 'form-control', 'placeholder'=>trans('adtech-core::common.menu.icon_here'))) !!}
                             <span class="help-block">{{ $errors->first('icon', ':message') }}</span>
                         </div>
 
@@ -117,6 +136,23 @@
                 theme:"bootstrap"
             });
             $("[name='permission_locked']").bootstrapSwitch();
-        })
+
+        });
+
+        var checkGroup = 0;
+        function changeGroupType() {
+            if (checkGroup % 2 == 0) {
+                $("#group_name_txt").css('display', 'block');
+                $('#group_name_txt').prop('disabled', false);
+                $('#group_name_select').prop('disabled', true);
+                $("#group_name_select").css('display', 'none');
+            } else {
+                $("#group_name_txt").css('display', 'none');
+                $('#group_name_txt').prop('disabled', true);
+                $('#group_name_select').prop('disabled', false);
+                $("#group_name_select").css('display', 'block');
+            }
+            checkGroup++;
+        }
     </script>
 @stop

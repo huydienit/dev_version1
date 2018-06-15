@@ -1,6 +1,8 @@
 <?php
 $apiPrefix = config('site.api_prefix');
 Route::group(array('prefix' => $apiPrefix), function() {
+    Route::get('document', 'SettingController@document')->name('nhvv.api.setting.document');
+
     Route::get('version', 'SettingController@version')->name('nhvv.api.setting.version');
     Route::get('setting', 'SettingController@setting')->name('nhvv.api.setting.setting');
 

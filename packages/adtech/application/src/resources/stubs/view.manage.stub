@@ -1,7 +1,7 @@
 @extends('layouts.default')
 
 {{-- Page title --}}
-@section('title'){{ $title = trans('adtech-core::titles.domain.manage') }}@stop
+@section('title'){{ $title = trans('vendor_name-package_name::language.titles.controller_name.manage') }}@stop
 
 {{-- page level styles --}}
 @section('header_styles')
@@ -13,7 +13,7 @@
 {{-- Page content --}}
 @section('content')
     <section class="content-header">
-        <h1>{{ $title }} - DEMO PAGE</h1>
+        <h1>{{ $title }}</h1>
         <ol class="breadcrumb">
             <li>
                 <a href="{{ route('backend.homepage') }}"> <i class="livicon" data-name="home" data-size="16"
@@ -35,8 +35,8 @@
                         {{ $title }}
                     </h4>
                     <div class="pull-right">
-                        <a href="{{ route('adtech.core.domain.create') }}" class="btn btn-sm btn-default"><span
-                                    class="glyphicon glyphicon-plus"></span> {{ trans('adtech-core::buttons.create') }}</a>
+                        <a href="{{ route('vendor_name.package_name.controller_name.create') }}" class="btn btn-sm btn-default"><span
+                                    class="glyphicon glyphicon-plus"></span> {{ trans('vendor_name-package_name::language.buttons.create') }}</a>
                     </div>
                 </div>
                 <br/>
@@ -45,11 +45,11 @@
                         <table class="table table-bordered" id="table">
                             <thead>
                             <tr class="filters">
-                                <th>{{ trans('adtech-core::common.id') }}</th>
-                                <th>{{ trans('adtech-core::common.domain.name') }}</th>
-                                <th>{{ trans('adtech-core::common.created_at') }}</th>
-                                <th>{{ trans('adtech-core::common.update_at') }}</th>
-                                <th>{{ trans('adtech-core::common.action') }}</th>
+                                <th>{{ trans('vendor_name-package_name::language.table.id') }}</th>
+                                <th>{{ trans('vendor_name-package_name::language.table.controller_name.name') }}</th>
+                                <th>{{ trans('vendor_name-package_name::language.table.created_at') }}</th>
+                                <th>{{ trans('vendor_name-package_name::language.table.updated_at') }}</th>
+                                <th>{{ trans('vendor_name-package_name::language.table.action') }}</th>
                             </tr>
                             </thead>
                         </table>
@@ -70,9 +70,9 @@
             var table = $('#table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('adtech.core.domain.data') }}',
+                ajax: '{{ route('vendor_name.package_name.controller_name.data') }}',
                 columns: [
-                    { data: 'domain_id', name: 'domain_id' },
+                    { data: 'controller_name_id', name: 'controller_name_id' },
                     { data: 'name', name: 'name' },
                     { data: 'created_at', name: 'created_at'},
                     { data: 'updated_at', name: 'updated_at'},

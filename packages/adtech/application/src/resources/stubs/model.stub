@@ -10,10 +10,10 @@ class model_name extends Model {
      *
      * @var string
      */
-    protected $table = 'table_name';
+    protected $table = 'tbl_demo';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'demo_id';
 
-    protected $guarded = ['id'];
+    protected $guarded = ['demo_id'];
     protected $fillable = ['name'];
 }

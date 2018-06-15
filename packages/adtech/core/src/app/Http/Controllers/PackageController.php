@@ -126,11 +126,13 @@ class PackageController extends Controller
                     $packages->create_by = $this->user->user_id;
                     $packages->save();
 
+                    $backend = ($request->input('space') == 'Backend') ? 1 : 0;
                     if ($packages->package_id) {
                         \Artisan::call('make:package', [
                             'vendor' => $vendor,
                             'package' => $package,
-                            '--path_value' => -1
+                            '--path_value' => -1,
+                            '--backend' => $backend //xac nhan tao backend
                         ]);
 
                         $domainsPackage = new DomainsPackage();

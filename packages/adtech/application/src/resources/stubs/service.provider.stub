@@ -41,8 +41,18 @@ class package_classServiceProvider extends ServiceProvider
             }
         }
 
+        /** load translations **/
+        $this->loadTranslationsFrom(__DIR__ . '/translations', $this->package . '-' . $this->module);
+
         /** load views **/
-        $this->loadViewsFrom(__DIR__.'/views', strtoupper($this->package . '-' . $this->module));
+        $groupName = config('site.group_name');
+        $groupName = $groupName ? $groupName : 'default';
+        $desktopTemplate = config('site.desktop.template');
+        $desktopTemplate = $desktopTemplate ? $desktopTemplate : 'default';
+        $templateName = $groupName . '/' . $desktopTemplate;
+
+        /** load views **/
+        $this->loadViewsFrom(__DIR__.'/views/' . $templateName . '/views', strtoupper($this->package . '-' . $this->module));
     }
 
     /**

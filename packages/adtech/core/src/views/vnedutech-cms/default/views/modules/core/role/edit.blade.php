@@ -35,12 +35,12 @@
                     <div class="col-sm-8">
                         <label>Role Name</label>
                         <div class="form-group {{ $errors->first('name', 'has-error') }}">
-                            {!! Form::text('name', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus', 'placeholder'=>trans('adtech-core::common.role.name_here'))) !!}
+                            {!! Form::text('name', null, array('class' => 'form-control', 'autofocus'=>'autofocus', 'placeholder'=>trans('adtech-core::common.role.name_here'))) !!}
                             <span class="help-block">{{ $errors->first('name', ':message') }}</span>
                         </div>
                         <label>Role Sort</label>
                         <div class="form-group {{ $errors->first('sort', 'has-error') }}">
-                            {!! Form::number('sort', null, array('min' => 0, 'max' => 99, 'class' => 'form-control input-lg', 'placeholder'=>trans('adtech-core::common.role.sort_here'))) !!}
+                            {!! Form::number('sort', null, array('min' => 0, 'max' => 99, 'class' => 'form-control', 'placeholder'=>trans('adtech-core::common.role.sort_here'))) !!}
                             <span class="help-block">{{ $errors->first('sort', ':message') }}</span>
                         </div>
                         <div class="form-group">

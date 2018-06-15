@@ -48,9 +48,12 @@ class PackageCreator
         'app/http' => 'app/Http',
         'controller' => 'app/Http/Controllers',
         'model' => 'app/Models',
+        'database' => 'database/migrations',
+        'seed' => 'database/seeds',
         'repository' => 'app/Repositories',
         'routes' => 'routes',
-        'views' => 'views/modules/$PACKAGE$/index',
+        'views' => 'views/$GROUP_NAME$/$SKIN$/views/modules/$PACKAGE$/demo',
+        'public' => 'views/$GROUP_NAME$/$SKIN$/public',
         'locale' => 'translations',
         'locale/language' => 'translations/$LOCALE$',
     );
@@ -63,9 +66,9 @@ class PackageCreator
         'model.stub' => 'app/Models/$MODEL_NAME$.php',
         'repository.stub' => 'app/Repositories/$REPOSITORY_NAME$Repository.php',
         'translation.stub' => 'translations/$LOCALE$/language.php',
-        'view.manage.stub' => 'views/modules/$PACKAGE$/index/manage.blade.php',
-        'view.create.stub' => 'views/modules/$PACKAGE$/index/create.blade.php',
-        'view.edit.stub' => 'views/modules/$PACKAGE$/index/edit.blade.php',
+        'view.manage.stub' => 'views/$GROUP_NAME$/$SKIN$/views/modules/$PACKAGE$/demo/manage.blade.php',
+        'view.create.stub' => 'views/$GROUP_NAME$/$SKIN$/views/modules/$PACKAGE$/demo/create.blade.php',
+        'view.edit.stub' => 'views/$GROUP_NAME$/$SKIN$/views/modules/$PACKAGE$/demo/edit.blade.php',
     );
 
     protected $createFileOption = array(
@@ -229,15 +232,15 @@ class PackageCreator
 
         if ($sectionCreate == false) {
             // Create the files.
-            $replaceOptions['$MODEL_NAME$'] = 'Index';
-            $replaceOptions['$CONTROLLER_NAME$'] = 'Index';
-            $replaceOptions['controller_namespace'] = 'Index';
-            $replaceOptions['controller_name'] = 'index';
+            $replaceOptions['$MODEL_NAME$'] = 'Demo';
+            $replaceOptions['$CONTROLLER_NAME$'] = 'Demo';
+            $replaceOptions['controller_namespace'] = 'Demo';
+            $replaceOptions['controller_name'] = 'demo';
 
-            $replaceOptions['$REPOSITORY_NAME$'] = 'Index';
-            $replaceOptions['repository_namespace'] = 'Index';
+            $replaceOptions['$REPOSITORY_NAME$'] = 'Demo';
+            $replaceOptions['repository_namespace'] = 'Demo';
             $replaceOptions['model_path'] = ucfirst($this->vendor) . '\\' . ucfirst($this->package) . '\App\Models';
-            $replaceOptions['model_name'] = 'Index';
+            $replaceOptions['model_name'] = 'Demo';
 
             $replaceOptions['$LOCALE$'] = config('app.locale');
 
@@ -249,6 +252,12 @@ class PackageCreator
 
     protected function createDirectory()
     {
+        //Get theme setup
+        $groupName = config('site.group_name');
+        $groupName = $groupName ? $groupName : 'default';
+        $skin = config('site.desktop.skin');
+        $skin = $skin ? $skin : 'default';
+
         // Directory.
         $directory = $this->getDirectory();
 
@@ -269,6 +278,8 @@ class PackageCreator
             foreach ($this->createDirectories as $k => $createDirectory) {
                 $createDirectory = str_replace('$LOCALE$', config('app.locale'), $createDirectory);
                 $createDirectory = str_replace('$PACKAGE$', $this->package, $createDirectory);
+                $createDirectory = str_replace('$GROUP_NAME$', $groupName, $createDirectory);
+                $createDirectory = str_replace('$SKIN$', $skin, $createDirectory);
                 $createDirectory = $srcDirectory . DIRECTORY_SEPARATOR . $createDirectory;
                 if (!$this->files->isDirectory($createDirectory)) {
                     // Create the directory if not.
@@ -280,6 +291,12 @@ class PackageCreator
 
     protected function createFile($section = null, $replaceOptions = array())
     {
+        //Get theme setup
+        $groupName = config('site.group_name');
+        $groupName = $groupName ? $groupName : 'default';
+        $skin = config('site.desktop.skin');
+        $skin = $skin ? $skin : 'default';
+
         // Directory.
         $directory = $this->getDirectory();
         $srcDirectory = $directory . DIRECTORY_SEPARATOR . $this->srcDirectory;
@@ -289,6 +306,8 @@ class PackageCreator
 
         $replaces = array(
             '$PACKAGE_LAST_NAME$' => ucfirst($packageData[count($packageData) - 1]),
+            '$GROUP_NAME$' => $groupName,
+            '$SKIN$' => $skin
         );
 
         if ($replaceOptions) {
@@ -308,12 +327,18 @@ class PackageCreator
             // Populate data
             $populateData = $this->getPopulateData($replaces);
             foreach ($createFiles as $stub => $file) {
+
+                $stub = ($this->options['backend'] == 1 && $stub == 'routes.stub') ? 'routes_backend.stub' : $stub;
                 $stubFile = $this->getStubPath() . '/' . $stub;
                 foreach ($replaces as $k => $v) {
                     $file = str_replace($k, $v, $file);
                 }
 
                 $this->createDirectories['locale/language'] = str_replace('$LOCALE$', config('app.locale'), $this->createDirectories['locale/language']);
+                $this->createDirectories['views'] = str_replace('$GROUP_NAME$', $groupName, $this->createDirectories['views']);
+                $this->createDirectories['views'] = str_replace('$SKIN$', $skin, $this->createDirectories['views']);
+
+
                 if ($section && isset($this->createDirectories[$section])) {
                     $file = $srcDirectory . DIRECTORY_SEPARATOR . $this->createDirectories[$section]
                         . DIRECTORY_SEPARATOR . $file;

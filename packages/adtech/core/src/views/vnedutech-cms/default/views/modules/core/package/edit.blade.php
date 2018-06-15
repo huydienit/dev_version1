@@ -47,12 +47,12 @@
                         </div>
                         <label>Package Name</label>
                         <div class="form-group {{ $errors->first('package', 'has-error') }}">
-                            {!! Form::text('package', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus', 'placeholder'=>trans('adtech-core::common.package.package_here'))) !!}
+                            {!! Form::text('package', null, array('class' => 'form-control', 'autofocus'=>'autofocus', 'placeholder'=>trans('adtech-core::common.package.package_here'))) !!}
                             <span class="help-block">{{ $errors->first('package', ':message') }}</span>
                         </div>
                         <label>Module Name</label>
                         <div class="form-group {{ $errors->first('module', 'has-error') }}">
-                            {!! Form::text('module', null, array('class' => 'form-control input-lg', 'autofocus'=>'autofocus', 'placeholder'=>trans('adtech-core::common.package.module_here'))) !!}
+                            {!! Form::text('module', null, array('class' => 'form-control', 'placeholder'=>trans('adtech-core::common.package.module_here'))) !!}
                             <span class="help-block">{{ $errors->first('module', ':message') }}</span>
                         </div>
                         <div class="form-group">

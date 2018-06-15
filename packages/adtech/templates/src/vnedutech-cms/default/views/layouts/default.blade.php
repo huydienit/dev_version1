@@ -21,6 +21,7 @@
     <!-- global css -->
 
     <link rel="stylesheet" href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/css/app.css?t=' . time()) }}"/>
+    <link rel="stylesheet" href="{{ asset('/vendor/' . $group_name . '/' . $skin . '/css/global.css?t=' . time()) }}"/>
     <!-- font Awesome -->
 
     <!-- end of global css -->
@@ -40,6 +41,7 @@
                 <div class="responsive_nav"></div>
             </a>
         </div>
+
         <div class="navbar-right">
             <ul class="nav navbar-nav">
                 @include('includes._messages')
@@ -109,6 +111,8 @@
                 </li>
             </ul>
         </div>
+
+        @include('includes._menu_top')
     </nav>
 </header>
 <div class="wrapper ">

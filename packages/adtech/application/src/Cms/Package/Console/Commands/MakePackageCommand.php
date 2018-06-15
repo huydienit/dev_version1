@@ -115,7 +115,8 @@ class MakePackageCommand extends Command
             ['criteria', null, InputOption::VALUE_OPTIONAL, 'The criteria name.', null],
             ['controller', null, InputOption::VALUE_OPTIONAL, 'The controller name.', null],
             ['locale', null, InputOption::VALUE_OPTIONAL, 'The locale name.', null],
-            ['path_value', null, InputOption::VALUE_OPTIONAL, 'The path value.', null]
+            ['path_value', null, InputOption::VALUE_OPTIONAL, 'The path value.', null],
+            ['backend', null, InputOption::VALUE_OPTIONAL, 'Check to backend.', null]
         ];
     }
 }

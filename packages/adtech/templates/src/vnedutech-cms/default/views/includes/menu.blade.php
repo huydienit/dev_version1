@@ -1,9 +1,11 @@
-@if (isset($MENU_LIST) > 0)
-    @foreach( $MENU_LIST as $key=>$menu )
-        @if ($key > 0 && $menu->parent == 0)
+@if (isset($MENU_LEFT))
+    <?php $stt = 0; ?>
+    @foreach( $MENU_LEFT as $key => $menu )
+        @if ($stt > 0 && $menu->parent == 0)
             </ul>
         </li>
         @endif
+
         @if ($menu->parent == 0)
         <li class="menu_more">
             <a href="#">
@@ -28,7 +30,7 @@
                 @endif
             @endif
         @endif
-
+        <?php $stt++; ?>
     @endforeach
             </ul>
         </li>

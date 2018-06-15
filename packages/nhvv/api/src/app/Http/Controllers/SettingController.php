@@ -13,6 +13,12 @@ use Crypt;
 class SettingController extends BaseController
 {
 
+    public function document()
+    {
+        $filePath = base_path('Document/API/api.html');
+        echo file_get_contents($filePath);
+    }
+
     public function version()
     {
         $data = '{

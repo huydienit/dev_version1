@@ -35,11 +35,13 @@ return [
         "icon" => "Icon",
         "name" => "Name",
         "sort" => "Sort",
+        "group" => "Group",
         "status" => "Status",
         "route_name" => "Route name",
         "icon_here" => "Icon name here...",
         "sort_here" => "Menu sort here...",
         "name_here" => "Menu name here...",
+        "group_name_here" => "Group name here...",
         "route_name_here" => "Route name here..."
     ],
     "package" => [

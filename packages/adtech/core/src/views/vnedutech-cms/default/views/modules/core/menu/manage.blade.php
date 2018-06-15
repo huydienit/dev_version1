@@ -55,6 +55,7 @@
                                 <th class="fit-content">{{ trans('adtech-core::common.sequence') }}</th>
                                 <th>{{ trans('adtech-core::common.menu.name') }}</th>
                                 <th>{{ trans('adtech-core::common.menu.route_name') }}</th>
+                                <th class="fit-content">{{ trans('adtech-core::common.menu.group') }}</th>
                                 <th class="fit-content">{{ trans('adtech-core::common.menu.icon') }}</th>
                                 <th style="width: 120px">{{ trans('adtech-core::common.created_at') }}</th>
                                 <th style="width: 120px">{{ trans('adtech-core::common.update_at') }}</th>
@@ -85,6 +86,7 @@
                     { data: 'DT_Row_Index', name: 'DT_Row_Index' },
                     { data: 'name', name: 'name' },
                     { data: 'route_name', name: 'route_name' },
+                    { data: 'group', name: 'group' },
                     { data: 'icon', name: 'icon' },
                     { data: 'created_at', name: 'created_at'},
                     { data: 'updated_at', name: 'updated_at'},

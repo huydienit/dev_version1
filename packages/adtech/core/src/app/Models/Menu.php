@@ -17,7 +17,7 @@ class Menu extends Model
 
     protected $primaryKey = 'menu_id';
 
-    protected $fillable = ['parent', 'sort', 'name', 'route_name', 'domain_id', 'icon'];
+    protected $fillable = ['parent', 'name', 'route_name', 'domain_id', 'group'];
 
     public function domains()
     {

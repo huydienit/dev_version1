@@ -24,15 +24,21 @@ class controller_namespaceController extends Controller
         $this->controller_name = $controller_nameRepository;
     }
 
-    public function add(controller_namespaceRequest $request)
+    public function add(Request $request)
     {
         $controller_names = new controller_namespace($request->all());
         $controller_names->save();
 
         if ($controller_names->controller_name_id) {
-            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::messages.success.create'));
+
+            activity('demo')
+                ->performedOn($controller_names)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Add Demo - name: :properties.name, demo_id: ' . $controller_names->demo_id);
+
+            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::language.messages.success.create'));
         } else {
-            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('error', trans('vendor_nameup-package_nameup::messages.error.create'));
+            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('error', trans('vendor_nameup-package_nameup::language.messages.error.create'));
         }
     }
 
@@ -41,16 +47,22 @@ class controller_namespaceController extends Controller
         return view('vendor_nameup-package_nameup::modules.package_name.controller_name.create');
     }
 
-    public function delete(controller_namespaceRequest $request)
+    public function delete(Request $request)
     {
         $controller_name_id = $request->input('controller_name_id');
         $controller_name = $this->controller_name->find($controller_name_id);
 
         if (null != $controller_name) {
             $this->controller_name->deleteID($controller_name_id);
-            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::messages.success.delete'));
+
+            activity('demo')
+                ->performedOn($controller_name)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Delete Demo - demo_id: :properties.demo_id, name: ' . $controller_name->name);
+
+            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::language.messages.success.delete'));
         } else {
-            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('error', trans('vendor_nameup-package_nameup::messages.error.delete'));
+            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('error', trans('vendor_nameup-package_nameup::language.messages.error.delete'));
         }
     }
 
@@ -59,7 +71,7 @@ class controller_namespaceController extends Controller
         return view('vendor_nameup-package_nameup::modules.package_name.controller_name.manage');
     }
 
-    public function show(controller_namespaceRequest $request)
+    public function show(Request $request)
     {
         $controller_name_id = $request->input('controller_name_id');
         $controller_name = $this->controller_name->find($controller_name_id);
@@ -70,7 +82,7 @@ class controller_namespaceController extends Controller
         return view('vendor_nameup-package_nameup::modules.package_name.controller_name.edit', $data);
     }
 
-    public function update(controller_namespaceRequest $request)
+    public function update(Request $request)
     {
         $controller_name_id = $request->input('controller_name_id');
 
@@ -78,9 +90,15 @@ class controller_namespaceController extends Controller
         $controller_name->name = $request->input('name');
 
         if ($controller_name->save()) {
-            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::messages.success.update'));
+
+            activity('demo')
+                ->performedOn($controller_name)
+                ->withProperties($request->all())
+                ->log('User: :causer.email - Update Demo - demo_id: :properties.demo_id, name: :properties.name');
+
+            return redirect()->route('vendor_name.package_name.controller_name.manage')->with('success', trans('vendor_nameup-package_nameup::language.messages.success.update'));
         } else {
-            return redirect()->route('vendor_name.package_name.controller_name.show', ['controller_name_id' => $request->input('controller_name_id')])->with('error', trans('vendor_nameup-package_nameup::messages.error.update'));
+            return redirect()->route('vendor_name.package_name.controller_name.show', ['controller_name_id' => $request->input('controller_name_id')])->with('error', trans('vendor_nameup-package_nameup::language.messages.error.update'));
         }
     }
 

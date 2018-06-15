@@ -16,6 +16,7 @@ use Validator;
 
 class MenuController extends Controller
 {
+    protected $_menuList;
     private $messages = array(
         'name.regex' => "Sai định dạng",
         'required' => "Bắt buộc",
@@ -69,6 +70,7 @@ class MenuController extends Controller
         if ($request->has('domain_id')) {
             $domain_id = $request->input('domain_id');
         }
+        self::getMenu($domain_id);
         $menus = $this->_menuList;
         if (empty($menus))
             $menus = array();
@@ -84,7 +86,9 @@ class MenuController extends Controller
             }
         }
 
-        return view('ADTECH-CORE::modules.core.menu.create', compact('domain_id', 'menus', 'listRouteName'));
+        $menusGroups =$this->_menuTop;
+
+        return view('ADTECH-CORE::modules.core.menu.create', compact('domain_id', 'menus', 'listRouteName', 'menusGroups'));
     }
 
     public function delete(MenuRequest $request)
@@ -120,6 +124,8 @@ class MenuController extends Controller
     {
         $menu_id = $request->input('menu_id');
         $menu = $this->menu->find($menu_id);
+
+        self::getMenu($menu->domain_id);
         $menus = $this->_menuList;
 
         //get route name list
@@ -133,13 +139,16 @@ class MenuController extends Controller
             }
         }
 
-        return view('ADTECH-CORE::modules.core.menu.edit', compact('menu', 'menus', 'listRouteName'));
+        $menusGroups = $this->_menuTop;
+
+        return view('ADTECH-CORE::modules.core.menu.edit', compact('menu', 'menus', 'listRouteName', 'menusGroups'));
     }
 
     public function update(MenuRequest $request)
     {
         $menu_id = $request->input('menu_id');
         $parent = $request->input('parent');
+        $group = $request->input('group');
         $name = $request->input('name');
         $route_name = $request->input('route_name');
         $domain_id = $request->input('domain_id');
@@ -152,6 +161,8 @@ class MenuController extends Controller
         }
 
         $menu = $this->menu->find($menu_id);
+        $menu->parent = $parent;
+        $menu->group = $group;
         $menu->name = $name;
         $menu->route_name = $route_name;
         $menu->sort = $sort;
@@ -212,6 +223,12 @@ class MenuController extends Controller
         }
     }
 
+    public function tab(Request $request)
+    {
+        $request->session()->put('tab', $request->input('tab'));
+        return redirect()->back();
+    }
+
     //Table Data to index page
     public function data(Request $request)
     {
@@ -222,7 +239,7 @@ class MenuController extends Controller
                 'items' => array(),
                 'parents' => array()
             );
-
+            self::getMenu($domain_id);
             $menus = Collection::make($this->_menuList);
             return Datatables::of($menus)
                 ->addIndexColumn()
@@ -256,5 +273,46 @@ class MenuController extends Controller
                 ->make();
         }
         return null;
+    }
+
+    function getMenu($domain_id = 0) {
+        $menusGroups = Menu::select('group')->where('group', '!=', '')->distinct()->get();
+        $this->_menuTop = $menusGroups;
+
+        $menus = Menu::where('domain_id', $domain_id)->orderBy('parent')->orderBy('sort')->get();
+        if (count($menus) > 0) {
+            foreach ($menus as $menu) {
+
+                $parent_id = $menu->parent;
+                $menu_id = $menu->menu_id;
+
+                $menuData['items'][$menu_id] = $menu;
+                $menuData['parents'][$parent_id][] = $menu_id;
+            }
+            $this->_menuList = new Collection();
+            self::buildMenu(0, $menuData);
+        }
+    }
+
+    function buildMenu($parentId, $menuData)
+    {
+        if (isset($menuData['parents'][$parentId]))
+        {
+            foreach ($menuData['parents'][$parentId] as $itemId)
+            {
+                $item = $menuData['items'][$itemId];
+                $item->level = 1;
+                if ($parentId == 0)
+                    $item->level = 0;
+                else
+                    $item->level = $menuData['items'][$parentId]->level + 1;
+                $this->_menuList->push($item);
+
+                // find childitems recursively
+                $more = self::buildMenu($itemId, $menuData);
+                if (!empty($more))
+                    $this->_menuList->push($more);
+            }
+        }
     }
 }

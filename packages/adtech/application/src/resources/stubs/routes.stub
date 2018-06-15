@@ -2,13 +2,14 @@
 $adminPrefix = '';
 //$adminPrefix = config('site.admin_prefix');
 Route::group(array('prefix' => $adminPrefix), function() {
-    Route::get('vendor_name/package_name/index/log', 'IndexController@log')->name('vendor_name.package_name.index.log');
-    Route::get('vendor_name/package_name/index/data', 'IndexController@data')->name('vendor_name.package_name.index.data');
-    Route::get('vendor_name/package_name/index/manage', 'IndexController@manage')->name('vendor_name.package_name.index.manage');
-    Route::get('vendor_name/package_name/index/create', 'IndexController@create')->name('vendor_name.package_name.index.create');
-    Route::post('vendor_name/package_name/index/add', 'IndexController@add')->name('vendor_name.package_name.index.add');
-    Route::get('vendor_name/package_name/index/show', 'IndexController@show')->name('vendor_name.package_name.index.show');
-    Route::put('vendor_name/package_name/index/update', 'IndexController@update')->name('vendor_name.package_name.index.update');
-    Route::get('vendor_name/package_name/index/delete', 'IndexController@delete')->name('vendor_name.package_name.index.delete');
-    Route::get('vendor_name/package_name/index/confirm-delete', 'IndexController@getModalDelete')->name('vendor_name.package_name.index.confirm-delete');
+
+    Route::get('vendor_name/package_name/demo/log', 'DemoController@log')->name('vendor_name.package_name.demo.log');
+    Route::get('vendor_name/package_name/demo/data', 'DemoController@data')->name('vendor_name.package_name.demo.data');
+    Route::get('vendor_name/package_name/demo/manage', 'DemoController@manage')->name('vendor_name.package_name.demo.manage');
+    Route::get('vendor_name/package_name/demo/create', 'DemoController@create')->name('vendor_name.package_name.demo.create');
+    Route::post('vendor_name/package_name/demo/add', 'DemoController@add')->name('vendor_name.package_name.demo.add');
+    Route::get('vendor_name/package_name/demo/show', 'DemoController@show')->name('vendor_name.package_name.demo.show');
+    Route::put('vendor_name/package_name/demo/update', 'DemoController@update')->name('vendor_name.package_name.demo.update');
+    Route::get('vendor_name/package_name/demo/delete', 'DemoController@delete')->name('vendor_name.package_name.demo.delete');
+    Route::get('vendor_name/package_name/demo/confirm-delete', 'DemoController@getModalDelete')->name('vendor_name.package_name.demo.confirm-delete');
 });
